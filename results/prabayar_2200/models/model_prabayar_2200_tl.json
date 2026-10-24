@@ -1,0 +1,17 @@
+{
+  "layer_sizes": [
+    71,
+    64,
+    16,
+    1
+  ],
+  "weights": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "capacity": "2200"
+}
