@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class KFoldCrossValidation:
     def __init__(
@@ -139,6 +140,9 @@ class KFoldCrossValidation:
                     "train_samples": len(train_idx),
                     "validation_samples": len(val_idx),
                     "best_epoch": best_epoch,
+                    "history": history,
+                    "y_val": y_val,
+                    "y_pred": y_pred,
                     **metrics,
                 }
 
@@ -374,6 +378,25 @@ if __name__ == "__main__":
         model_params=model_params,
         trainer_params=trainer_params
     )
+
+    output_dir = f"results/kfold_{args.capacity}VA"
+    os.makedirs(output_dir, exist_ok=True)
+
+    for result in kfold.fold_results:
+        plt.figure(figsize=(8, 5))
+        plt.plot(result['history']['train_loss'], label='Train Loss')
+        plt.plot(result['history']['val_loss'], label='Validation Loss')
+        plt.axvline(result['best_epoch'], color='r', linestyle='--', alpha=0.5, label=f"Best Epoch ({result['best_epoch']})")
+        plt.title(f"Fold {result['fold']} - Loss Curve")
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(f"{output_dir}/fold_{result['fold']}.png", dpi=150)
+        plt.close()
+
+    print(f"\nVisualizations saved in: {output_dir}/")
 
     # Print summary
     print(f"\n{'='*60}")
