@@ -270,7 +270,7 @@ if __name__ == "__main__":
                 self.clip_value = clip_value
 
             def fit(self, model, X_train, y_train, X_val, y_val):
-                loss_fn = AsymmetricMSE(alpha=0.6)
+                loss_fn = AsymmetricMSE(alpha=cfg["asymmetric_alpha"], beta=cfg["asymmetric_beta"])
                 optimizer = Adam(self.lr)
                 regularizer = L2Regularizer(lambda_=self.l2_lambda)
                 early_stopping = EarlyStopping(patience=self.patience, min_delta=1e-5, mode="min")
@@ -303,7 +303,7 @@ if __name__ == "__main__":
 
                         # Regularization
                         trainable_params = model.get_trainable_layers()
-                        regularizer.apply_to_gradients(trainable_params)
+                        regularizer.apply_to_gradients(trainable_params, y_batch)
 
                         # Gradient clipping
                         clip_gradients(model, self.clip_value)
@@ -320,7 +320,7 @@ if __name__ == "__main__":
                     if self.l2_lambda > 0:
                         weights_list = [layer.weights for layer in model.layers
                                         if hasattr(layer, 'weights') and layer.weights is not None]
-                        l2_penalty = regularizer.compute_loss(weights_list)
+                        l2_penalty = regularizer.compute_loss(weights_list, y_batch)
                         train_loss += l2_penalty
 
                     history["train_loss"].append(float(train_loss))
