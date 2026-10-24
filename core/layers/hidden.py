@@ -5,8 +5,6 @@ class Hidden:
         self.input_size = input_size
         self.output_size = output_size
 
-        # Set random seed for reproducibility
-        np.random.seed(42)
         self.weights = np.random.randn(input_size, output_size) * np.sqrt(2.0 / input_size)
 
         self.biases = np.zeros((1, output_size))

@@ -7,8 +7,7 @@ class Output:
         self.weights = np.random.randn(input_size, 1) * np.sqrt(2.0 / input_size)
 
         self.input = None
-        self.dweights = None
-        # self.dbiases = None
+        self.dbiases = None
 
     def forward(self, x):
         self.input = x

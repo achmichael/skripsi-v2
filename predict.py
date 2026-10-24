@@ -4,10 +4,9 @@ import pandas as pd
 import argparse
 import os
 
-from utils.helper import create_model
+from utils.helper import create_model, transform_selective
 from preprocessing.preprocess import preprocess
 from feature_extraction.feature_extraction import extractor
-from transformation.feature import transform_standard
 from transformation.inverse_transform import inverse_transform_target
 from core.config.config import configs
 
@@ -83,7 +82,7 @@ def predict(model, x_data, x_scaler, y_scaler, use_log=False):
         list: Predictions dalam skala asli (hari)
     """
     # Scale features
-    x_scaled = transform_standard(x_data, x_scaler)
+    x_scaled = transform_selective(x_data, x_scaler)
     x_np = np.array(x_scaled, dtype=np.float32)
     
     # Predict

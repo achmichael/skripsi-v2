@@ -9,11 +9,6 @@ from preprocessing.preprocess import (
 )
 
 from feature_extraction.feature_extraction import extractor
-from transformation.feature import (
-    fit_standard_scaler,
-    transform_standard
-)
-
 from transformation.target import (
     fit_minmax_scaler,
     transform_minmax
@@ -129,8 +124,7 @@ class Trainer:
         if verbose:
             print("[5/8] Feature scaling (StandardScaler)...")
 
-        x_scaler = fit_standard_scaler(x_train)
-        x_train_scaled, x_val_scaled, x_test_scaled = (
+        x_train_scaled, x_val_scaled, x_test_scaled, x_scaler = (
             selective_feature_scaling(
                 x_train=x_train,
                 x_test=x_test,
@@ -260,13 +254,11 @@ class Trainer:
         # Save model weights
         model_weights = []
         for layer in model.layers:
-            if hasattr(layer, 'weights') and hasattr(layer, ""):
+            if hasattr(layer, 'weights') and hasattr(layer, 'biases'):
                 model_weights.append({
                     'weights': layer.weights.tolist(),
                     'biases': layer.biases.tolist()
                 })
-            else:
-                model_weights.append(None)
 
         model_data = {
             'layer_sizes': model.layer_sizes,

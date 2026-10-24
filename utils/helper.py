@@ -8,6 +8,8 @@ from core.models.model_1300_va import Model1300VA
 from core.models.model_2200_va import Model2200VA
 
 def create_model(capacity, layers):
+    np.random.seed(42)
+
     match str(capacity):
         case "900":
             model = Model900VA(layer_sizes=layers)
@@ -108,16 +110,10 @@ def selective_feature_scaling(
     feature_columns,
     encoding_cols,
 ):
-    no_scaling_indices = {
+    scaling_indices = [
         i
         for i, col in enumerate(feature_columns)
         if col not in encoding_cols
-    }
-
-    scaling_indices = [
-        i
-        for i in range(len(feature_columns))
-        if i not in no_scaling_indices
     ]
 
     # copy the data so that the original data remains unchanged
@@ -157,5 +153,29 @@ def selective_feature_scaling(
             for row_idx, row in enumerate(transformed):
                 for col_idx, feature_idx in enumerate(scaling_indices):
                     dataset[row_idx][feature_idx] = row[col_idx]
+    else:
+        scaler = {"mean": [], "std": []}
 
-    return x_train_scaled, x_val_scaled, x_test_scaled
+    scaler_data = {
+        "scaler": scaler,
+        "scaling_indices": scaling_indices,
+    }
+
+    return x_train_scaled, x_val_scaled, x_test_scaled, scaler_data
+
+
+def transform_selective(x_data, scaler_data):
+    scaling_indices = scaler_data["scaling_indices"]
+    scaled = [row.copy() for row in x_data]
+
+    if not scaling_indices:
+        return scaled
+
+    numeric = [[row[i] for i in scaling_indices] for row in x_data]
+    transformed = transform_standard(numeric, scaler_data["scaler"])
+
+    for row_idx, row in enumerate(transformed):
+        for col_idx, feature_idx in enumerate(scaling_indices):
+            scaled[row_idx][feature_idx] = row[col_idx]
+
+    return scaled

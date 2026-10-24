@@ -151,7 +151,7 @@ def main():
     parser.add_argument(
         "--loss",
         choices=["mse", "asymmetric"],
-        default="mse",
+        default="asymmetric",
         help="Jenis loss function (default: asymmetric)"
     )
     parser.add_argument(
