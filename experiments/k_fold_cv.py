@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class KFoldCrossValidation:
+    MAPE_MIN_ABS_TARGET = 1e-6
+
     def __init__(
         self,
         k=5,
@@ -59,8 +61,8 @@ class KFoldCrossValidation:
 
         rmse = np.sqrt(np.mean(errors ** 2))
 
-        nonzero = y_true != 0
-        # Mape tidak terdefinisi untuk nilai target 0 (karena perhitungan MAPE melibatkan pembagian dengan nilai target tersebut)
+        # Nilai target mendekati nol membuat MAPE meledak, jadi dikecualikan.
+        nonzero = np.abs(y_true) > KFoldCrossValidation.MAPE_MIN_ABS_TARGET
         if np.any(nonzero):
             mape = np.mean(np.abs(errors[nonzero] / y_true[nonzero])) * 100
         else:
@@ -82,12 +84,12 @@ class KFoldCrossValidation:
         }
 
     @staticmethod
-    def _denormalize(y_scaled, y_scaler, inverse_fn):
+    def _denormalize(y_scaled, y_scaler, inverse_fn, use_log=False):
         if y_scaler is None or inverse_fn is None:
             return y_scaled
         flat = np.asarray(y_scaled).reshape(-1).tolist()
         return np.array(
-            inverse_fn(flat, y_scaler), dtype=np.float64
+            inverse_fn(flat, y_scaler, use_log), dtype=np.float64
         ).reshape(np.asarray(y_scaled).shape)
 
     def evaluate(
@@ -98,11 +100,17 @@ class KFoldCrossValidation:
             trainer_factory,
             model_params,
             trainer_params,
-            y_scaler=None,
+            feature_columns,
+            encoding_cols=(),
             inverse_fn=None,
+            use_log=False,
+            seed=None,
         ):
             """
             Setiap fold membuat model dan Trainer baru.
+
+            Scaling fit hanya pada data training fold tersebut, lalu
+            diterapkan ke validation fold (tanpa fit ulang).
 
             model_factory:
                 Contoh: MLP
@@ -110,10 +118,25 @@ class KFoldCrossValidation:
             trainer_factory:
                 Class Trainer yang menyediakan fit(...).
 
-            y_scaler, inverse_fn:
+            feature_columns, encoding_cols:
+                Dipakai oleh selective_feature_scaling agar kolom yang
+                dikecualikan sama dengan train.py.
+
+            inverse_fn, use_log:
                 Dipakai untuk mengembalikan target & prediksi ke skala asli
                 sebelum menghitung metrik.
+
+            seed:
+                Seed dasar. Seed fold = seed + fold_number, di-set sebelum
+                inisialisasi bobot model.
             """
+            from utils.helper import selective_feature_scaling
+            from transformation.target import fit_minmax_scaler, transform_minmax
+            from transformation.inverse_transform import inverse_transform_target
+
+            if inverse_fn is None:
+                inverse_fn = inverse_transform_target
+
             X = np.asarray(X)
             y = np.asarray(y)
 
@@ -122,17 +145,45 @@ class KFoldCrossValidation:
                     "Jumlah baris X dan y harus sama"
                 )
 
+            base_seed = self.random_state if seed is None else seed
+            encoding_cols = set(encoding_cols)
+
             self.fold_results = []
 
             for fold_number, (train_idx, val_idx) in enumerate(
                 self.split(len(X)),
                 start=1,
             ):
-                X_train = X[train_idx]
-                y_train = y[train_idx]
+                X_train = X[train_idx].tolist()
+                X_val = X[val_idx].tolist()
+                y_train = y[train_idx].reshape(-1).tolist()
+                y_val = y[val_idx].reshape(-1).tolist()
 
-                X_val = X[val_idx]
-                y_val = y[val_idx]
+                # Fit scaler hanya pada training fold, lalu transform validation.
+                X_train_scaled, X_val_scaled, _, x_scaler = (
+                    selective_feature_scaling(
+                        x_train=X_train,
+                        x_val=X_val,
+                        x_test=X_val,
+                        feature_columns=feature_columns,
+                        encoding_cols=encoding_cols,
+                    )
+                )
+                y_scaler = fit_minmax_scaler(y_train)
+                y_train_scaled = transform_minmax(y_train, y_scaler)
+                y_val_scaled = transform_minmax(y_val, y_scaler)
+
+                X_train_np = np.asarray(X_train_scaled, dtype=np.float32)
+                X_val_np = np.asarray(X_val_scaled, dtype=np.float32)
+                y_train_np = np.asarray(
+                    y_train_scaled, dtype=np.float32
+                ).reshape(-1, 1)
+                y_val_np = np.asarray(
+                    y_val_scaled, dtype=np.float32
+                ).reshape(-1, 1)
+
+                # Seed sebelum inisialisasi bobot agar reproducible.
+                np.random.seed(int(base_seed) + fold_number)
 
                 # Buat model baru agar bobot antarfold tidak terbawa.
                 model = model_factory(**model_params)
@@ -140,17 +191,21 @@ class KFoldCrossValidation:
 
                 model, history, best_epoch = trainer.fit(
                     model=model,
-                    X_train=X_train,
-                    y_train=y_train,
-                    X_val=X_val,
-                    y_val=y_val,
+                    X_train=X_train_np,
+                    y_train=y_train_np,
+                    X_val=X_val_np,
+                    y_val=y_val_np,
                 )
 
-                y_pred = model.forward(X_val)
+                y_pred = model.forward(X_val_np)
 
                 # Kembalikan ke skala asli sebelum menghitung metrik.
-                y_val_eval = self._denormalize(y_val, y_scaler, inverse_fn)
-                y_pred_eval = self._denormalize(y_pred, y_scaler, inverse_fn)
+                y_val_eval = self._denormalize(
+                    y_val_np, y_scaler, inverse_fn, use_log
+                )
+                y_pred_eval = self._denormalize(
+                    y_pred, y_scaler, inverse_fn, use_log
+                )
 
                 metrics = self.calculate_metrics(y_val_eval, y_pred_eval)
 
@@ -162,6 +217,8 @@ class KFoldCrossValidation:
                     "history": history,
                     "y_val": y_val_eval,
                     "y_pred": y_pred_eval,
+                    "x_scaler": x_scaler,
+                    "y_scaler": y_scaler,
                     **metrics,
                 }
 
@@ -169,8 +226,8 @@ class KFoldCrossValidation:
 
                 print(
                     f"Fold {fold_number}: "
-                    f"MAE={metrics['mae']:.4f}, "
-                    f"RMSE={metrics['rmse']:.4f}, "
+                    f"MAE={metrics['mae']:.4f} hari, "
+                    f"RMSE={metrics['rmse']:.4f} hari, "
                     f"MAPE={metrics['mape']:.2f}%, "
                     f"R2={metrics['r2']:.4f}"
                 )
@@ -211,11 +268,8 @@ if __name__ == "__main__":
     # Add parent directory to path
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    from preprocessing.preprocess import preprocess, train_test_split
+    from preprocessing.preprocess import preprocess
     from feature_extraction.feature_extraction import extractor
-    from transformation.feature import fit_standard_scaler, transform_standard
-    from transformation.target import fit_minmax_scaler, transform_minmax
-    from transformation.inverse_transform import inverse_transform_target
     from core.models.mlp import MLP
     from core.losses.asymmetric_mse import AsymmetricMSE
     from core.optimizers.adam import Adam
@@ -261,17 +315,11 @@ if __name__ == "__main__":
     print(f"   Features: {len(feature_columns)}")
     print(f"   Samples: {len(x_data)}")
 
-    # Scale data
-    print("[2/3] Scaling data...")
-    x_scaler = fit_standard_scaler(x_data)
-    x_scaled = transform_standard(x_data, x_scaler)
-
-    y_scaler = fit_minmax_scaler(y_data)
-    y_scaled = transform_minmax(y_data, y_scaler)
-
-    # Convert to numpy
-    X = np.array(x_scaled, dtype=np.float32)
-    y = np.array(y_scaled, dtype=np.float32).reshape(-1, 1)
+    # Data mentah; scaling dilakukan per fold di dalam evaluate().
+    print("[2/3] Preparing raw data...")
+    X = np.array(x_data, dtype=np.float32)
+    y = np.array(y_data, dtype=np.float32).reshape(-1, 1)
+    encoding_cols = set(configs["preprocessing"]["no_scaling_cols"])
 
     input_size = len(feature_columns)
     hidden_layers = cfg["hidden_layers"]
@@ -284,20 +332,39 @@ if __name__ == "__main__":
         layer_sizes = [input_size] + hidden_layers + [1]
         return MLP(layer_sizes)
 
-    def trainer_factory(learning_rate, batch_size, l2_lambda, patience, clip_value):
+    def trainer_factory(
+            learning_rate,
+            batch_size,
+            l2_lambda,
+            patience,
+            min_delta,
+            clip_value,
+            asymmetric_alpha,
+            asymmetric_beta,
+        ):
         class SimpleTrainer:
             def __init__(self):
                 self.lr = learning_rate
                 self.batch_size = batch_size
                 self.l2_lambda = l2_lambda
                 self.patience = patience
+                self.min_delta = min_delta
                 self.clip_value = clip_value
+                self.asymmetric_alpha = asymmetric_alpha
+                self.asymmetric_beta = asymmetric_beta
 
             def fit(self, model, X_train, y_train, X_val, y_val):
-                loss_fn = AsymmetricMSE(alpha=cfg["asymmetric_alpha"], beta=cfg["asymmetric_beta"])
+                loss_fn = AsymmetricMSE(
+                    alpha=self.asymmetric_alpha,
+                    beta=self.asymmetric_beta,
+                )
                 optimizer = Adam(self.lr)
                 regularizer = L2Regularizer(lambda_=self.l2_lambda)
-                early_stopping = EarlyStopping(patience=self.patience, min_delta=1e-5, mode="min")
+                early_stopping = EarlyStopping(
+                    patience=self.patience,
+                    min_delta=self.min_delta,
+                    mode="min",
+                )
 
                 history = {"train_loss": [], "val_loss": []}
 
@@ -374,7 +441,10 @@ if __name__ == "__main__":
         "batch_size": cfg["batch_size"],
         "l2_lambda": cfg["l2_lambda"],
         "patience": cfg["patience"],
-        "clip_value": cfg["clip_value"]
+        "min_delta": cfg["min_delta"],
+        "clip_value": cfg["clip_value"],
+        "asymmetric_alpha": cfg["asymmetric_alpha"],
+        "asymmetric_beta": cfg["asymmetric_beta"],
     }
 
     print(f"\nTrainer parameters:")
@@ -397,8 +467,10 @@ if __name__ == "__main__":
         trainer_factory=trainer_factory,
         model_params=model_params,
         trainer_params=trainer_params,
-        y_scaler=y_scaler,
-        inverse_fn=inverse_transform_target,
+        feature_columns=feature_columns,
+        encoding_cols=encoding_cols,
+        use_log=cfg["use_log_transform"],
+        seed=args.seed,
     )
 
     output_dir = f"results/kfold_{args.capacity}VA"
