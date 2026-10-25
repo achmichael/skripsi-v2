@@ -81,6 +81,15 @@ class KFoldCrossValidation:
             "r2": float(r2),
         }
 
+    @staticmethod
+    def _denormalize(y_scaled, y_scaler, inverse_fn):
+        if y_scaler is None or inverse_fn is None:
+            return y_scaled
+        flat = np.asarray(y_scaled).reshape(-1).tolist()
+        return np.array(
+            inverse_fn(flat, y_scaler), dtype=np.float64
+        ).reshape(np.asarray(y_scaled).shape)
+
     def evaluate(
             self,
             X,
@@ -89,6 +98,8 @@ class KFoldCrossValidation:
             trainer_factory,
             model_params,
             trainer_params,
+            y_scaler=None,
+            inverse_fn=None,
         ):
             """
             Setiap fold membuat model dan Trainer baru.
@@ -98,6 +109,10 @@ class KFoldCrossValidation:
 
             trainer_factory:
                 Class Trainer yang menyediakan fit(...).
+
+            y_scaler, inverse_fn:
+                Dipakai untuk mengembalikan target & prediksi ke skala asli
+                sebelum menghitung metrik.
             """
             X = np.asarray(X)
             y = np.asarray(y)
@@ -133,7 +148,11 @@ class KFoldCrossValidation:
 
                 y_pred = model.forward(X_val)
 
-                metrics = self.calculate_metrics(y_val, y_pred)
+                # Kembalikan ke skala asli sebelum menghitung metrik.
+                y_val_eval = self._denormalize(y_val, y_scaler, inverse_fn)
+                y_pred_eval = self._denormalize(y_pred, y_scaler, inverse_fn)
+
+                metrics = self.calculate_metrics(y_val_eval, y_pred_eval)
 
                 result = {
                     "fold": fold_number,
@@ -141,8 +160,8 @@ class KFoldCrossValidation:
                     "validation_samples": len(val_idx),
                     "best_epoch": best_epoch,
                     "history": history,
-                    "y_val": y_val,
-                    "y_pred": y_pred,
+                    "y_val": y_val_eval,
+                    "y_pred": y_pred_eval,
                     **metrics,
                 }
 
@@ -196,6 +215,7 @@ if __name__ == "__main__":
     from feature_extraction.feature_extraction import extractor
     from transformation.feature import fit_standard_scaler, transform_standard
     from transformation.target import fit_minmax_scaler, transform_minmax
+    from transformation.inverse_transform import inverse_transform_target
     from core.models.mlp import MLP
     from core.losses.asymmetric_mse import AsymmetricMSE
     from core.optimizers.adam import Adam
@@ -376,7 +396,9 @@ if __name__ == "__main__":
         model_factory=model_factory,
         trainer_factory=trainer_factory,
         model_params=model_params,
-        trainer_params=trainer_params
+        trainer_params=trainer_params,
+        y_scaler=y_scaler,
+        inverse_fn=inverse_transform_target,
     )
 
     output_dir = f"results/kfold_{args.capacity}VA"
