@@ -259,6 +259,10 @@ class Trainer:
                     'weights': layer.weights.tolist(),
                     'biases': layer.biases.tolist()
                 })
+            elif hasattr(layer, 'weights'):
+                model_weights.append({
+                    'weights': layer.weights.tolist()
+                })
 
         model_data = {
             'layer_sizes': model.layer_sizes,

@@ -11,6 +11,7 @@ from utils.helper import create_model
 from training.trainer import Trainer
 from evaluations.evaluator import Evaluator
 from postprocessing.xai.xai import IntegratedGradients
+from visualization.plots import save_feature_importance_bar
 
 import json
 import numpy as np
@@ -120,6 +121,16 @@ def analyze_features(result, capacity, n_samples=50, verbose=True):
     importance_path = os.path.join(cfg['metrics_dir'], f"feature_importance_{capacity}va.json")
     with open(importance_path, 'w') as f:
         json.dump(importance, f, indent=2, ensure_ascii=False)
+
+    importance_plot_path = os.path.join(
+        cfg['metrics_dir'],
+        f"feature_importance_{capacity}va.png",
+    )
+    save_feature_importance_bar(
+        importance,
+        importance_plot_path,
+        f"{capacity} VA",
+    )
 
     if verbose:
         print(f"\nTop 10 Most Important Features:")

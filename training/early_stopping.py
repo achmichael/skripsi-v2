@@ -38,6 +38,10 @@ class EarlyStopping:
                     "weights": layer.weights.copy(),
                     "biases": layer.biases.copy()
                 })
+            elif hasattr(layer, "weights"):
+                parameters.append({
+                    "weights": layer.weights.copy(),
+                })
             else:
                 parameters.append(None)
         return parameters

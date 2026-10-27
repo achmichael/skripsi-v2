@@ -1,0 +1,73 @@
+{
+    "capacity": "2200",
+    "train": {
+        "rmse": 1.292725991608578,
+        "mae": 0.9866975184925431,
+        "mape": 7.6950704117814075,
+        "r2": 0.9704751136361955,
+        "set_name": "train",
+        "n_samples": 108
+    },
+    "validation": {
+        "rmse": 3.731513313081784,
+        "mae": 2.954739420953077,
+        "mape": 14.812926701247564,
+        "r2": 0.8250802386994448,
+        "set_name": "validation",
+        "n_samples": 11
+    },
+    "test": {
+        "rmse": 5.494897408422972,
+        "mae": 4.079606608336886,
+        "mape": 26.808035146129765,
+        "r2": 0.5991478218703357,
+        "set_name": "test",
+        "n_samples": 21
+    },
+    "metadata": {
+        "capacity": "2200",
+        "feature_columns": [
+            "Jumlah_Anggota_Keluarga",
+            "Status_Subsidi_Listrik",
+            "Nominal_Token_Terakhir_Rp",
+            "Frekuensi_Isi_Token_Per_Bulan",
+            "Kulkas_Jumlah",
+            "Kulkas_Kategori",
+            "Kulkas_EstimasiWattPerUnit",
+            "Kulkas_EstimasiJamPerHari",
+            "Kulkas_Energi_kWhPerHari",
+            "TV_Jumlah",
+            "TV_Kategori",
+            "TV_EstimasiWattPerUnit",
+            "TV_EstimasiJamPerHari",
+            "TV_Energi_kWhPerHari",
+            "AC_Jumlah",
+            "AC_PK_Kategori",
+            "AC_Kategori",
+            "AC_EstimasiWattPerUnit",
+            "AC_EstimasiJamPerHari",
+            "AC_Energi_kWhPerHari",
+            "Kipas_Jumlah",
+            "Kipas_Kategori",
+            "Kipas_EstimasiWattPerUnit",
+            "Kipas_EstimasiJamPerHari",
+            "Kipas_Energi_kWhPerHari",
+            "RiceCooker_Jumlah",
+            "RiceCooker_Kategori",
+            "RiceCooker_EstimasiWattPerUnit",
+            "RiceCooker_EstimasiJamPerHari",
+            "RiceCooker_Energi_kWhPerHari",
+            "MesinCuci_Jumlah",
+            "MesinCuci_Kategori",
+            "MesinCuci_EstimasiWattPerUnit",
+            "MesinCuci_EstimasiFrekuensiPerMinggu",
+            "MesinCuci_EstimasiDurasiSekaliPakaiJam",
+            "MesinCuci_Energi_kWhPerHari"
+        ],
+        "target_col": "Token_Habis_Dalam_Hari",
+        "use_log_transform": true,
+        "epochs_trained": 490,
+        "best_epoch": 430,
+        "best_val_loss": 0.006833529479701034
+    }
+}

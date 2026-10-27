@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -260,10 +262,54 @@ class KFoldCrossValidation:
         return summary
 
 
+def plot_fold_performance(fold_results, capacity, output_dir):
+    folds = [result["fold"] for result in fold_results]
+    values = np.array(
+        [result["mae"] for result in fold_results],
+        dtype=float,
+    )
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars = ax.bar(folds, values, color="#4C72B0", alpha=0.85)
+
+    for bar, value in zip(bars, values):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{value:.2f}",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
+
+    mean_value = np.nanmean(values)
+    ax.axhline(
+        mean_value,
+        color="#C44E52",
+        linestyle="--",
+        linewidth=1.5,
+        label=f"Mean = {mean_value:.2f} hari",
+    )
+
+    ax.set_title(f"Per-Fold MAE - {capacity} VA")
+    ax.set_xlabel("Fold")
+    ax.set_ylabel("MAE (hari)")
+    ax.set_xticks(folds)
+    ax.grid(True, axis="y", alpha=0.3)
+    ax.margins(y=0.12)
+    ax.legend()
+
+    fig.tight_layout()
+    fig.savefig(
+        os.path.join(output_dir, "performance_per_fold.png"),
+        dpi=150,
+    )
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     import argparse
     import sys
-    import os
 
     # Add parent directory to path
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -489,6 +535,8 @@ if __name__ == "__main__":
         plt.tight_layout()
         plt.savefig(f"{output_dir}/fold_{result['fold']}.png", dpi=150)
         plt.close()
+
+    plot_fold_performance(kfold.fold_results, args.capacity, output_dir)
 
     print(f"\nVisualizations saved in: {output_dir}/")
 

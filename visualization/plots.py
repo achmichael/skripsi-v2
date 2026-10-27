@@ -214,6 +214,45 @@ def plot_error_distribution(
         plt.close(fig)
 
 
+def save_feature_importance_bar(
+    importance: list[dict],
+    save_path: str,
+    model_type: str,
+    top_n: int = 10,
+):
+    """Plot top-N feature importance sebagai horizontal bar chart."""
+    top = importance[:top_n]
+    features = [item["feature"] for item in top][::-1]
+    values = [item["relative_importance_pct"] for item in top][::-1]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    bars = ax.barh(features, values, color="#4C72B0", alpha=0.85)
+
+    for bar, value in zip(bars, values):
+        ax.text(
+            bar.get_width(),
+            bar.get_y() + bar.get_height() / 2,
+            f" {value:.2f}%",
+            va="center",
+            fontsize=9,
+        )
+
+    ax.set_xlabel("Relative Importance (%)", fontsize=12)
+    ax.set_ylabel("Fitur", fontsize=12)
+    ax.set_title(
+        f"Top {top_n} Feature Importance — {model_type.upper()}",
+        fontsize=14,
+        fontweight="bold",
+    )
+    ax.grid(True, axis="x", alpha=0.3)
+    ax.margins(x=0.15)
+
+    fig.tight_layout()
+    fig.savefig(save_path, dpi=150)
+    plt.close(fig)
+    print(f"Feature importance chart disimpan ke: {save_path}")
+
+
 def save_metrics_json(metrics: dict, save_path: str):
     """Simpan metrik evaluasi ke JSON."""
     with open(save_path, "w", encoding="utf-8") as f:
