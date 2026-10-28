@@ -1,2 +1,6 @@
 *.md
 *.png
+results/**/metrics/
+*.txt
+*.zip
+*.csv

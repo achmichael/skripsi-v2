@@ -1,3 +1,4 @@
+from typing import Any, Dict, List, Optional
 from transformation.feature import fit_standard_scaler, transform_standard
 from pandas.io.pytables import dropna_doc
 from locale import normalize
@@ -6,6 +7,17 @@ import numpy as np
 from core.models.model_900_va import Model900VA
 from core.models.model_1300_va import Model1300VA
 from core.models.model_2200_va import Model2200VA
+from core.config.config import (
+    DAILY_USAGE_HOURS,
+    DAILY_DEVICE_WATT,
+    AC_WATT_BY_PK,
+    KULKAS_WATT_BY_SIZE,
+    WEEKLY_USAGE_FREQUENCY,
+    OTHER_DEFAULT_WATT,
+    OTHER_USAGE_TO_DAILY_HOURS,
+    WEEKLY_DEVICE_WATT,
+    WEEKLY_DEVICE_DURATION_HOURS
+)
 
 def create_model(capacity, layers):
     np.random.seed(42)
@@ -179,3 +191,87 @@ def transform_selective(x_data, scaler_data):
             scaled[row_idx][feature_idx] = row[col_idx]
 
     return scaled
+
+def calculate_energy_wh(
+    quantity: float,
+    watt: float,
+    hours_per_day: float
+) -> float:
+    return round(
+        max(0.0, quantity) * max(0.0, watt) * max(0.0, hours_per_day), 3
+    )
+
+def wh_to_kwh(energy_wh: float) -> float:
+    return round(energy_wh / 1000, 6)
+
+def calculate_always_on_device(
+    quantity: float,
+    watt_per_unit: float,
+) -> Dict[str, float]:
+    # untuk kulkas diasumsikan hidup selama 24 jam jika jumlahnya lebih dari 0
+    hour = 24.0 if quantity > 0 else 0.0
+    energy_wh = calculate_energy_wh(quantity, watt_per_unit, hour)
+
+    return {
+        "quantity": quantity,
+        "watt_per_unit": watt_per_unit,
+        "hours_per_day": hour,
+        "energy_wh_per_day": energy_wh,
+        "energy_kwh_per_day": wh_to_kwh(energy_wh)
+    }
+
+def calculate_daily_device(
+    quantity: float,
+    watt_per_unit: float,
+    usage_category: str
+) -> Dict[str, float]:
+    hour = DAILY_USAGE_HOURS.get(usage_category, 0.0)
+    energy_wh = calculate_energy_wh(quantity, watt_per_unit, hour)
+
+    return {
+        "quantity": quantity,
+        "watt_per_unit": watt_per_unit,
+        "hours_per_day": hour,
+        "energy_wh_per_day": energy_wh,
+        "energy_kwh_per_day": wh_to_kwh(energy_wh)
+    }
+
+def calculate_weekly_device(
+    quantity: float,
+    watt_per_unit: float,
+    frequency_per_week: float,
+    duration_per_use: float
+) -> Dict[str, float]:
+    energy_wh = (
+        max(0.0, quantity) * max(0.0, watt_per_unit) * max(0.0, frequency_per_week) * max(0.0, duration_per_use) / 7.0
+    )
+
+    energy_wh = round(energy_wh, 3)
+
+    return {
+        "quantity": quantity,
+        "watt_per_unit": watt_per_unit,
+        "frequency_per_week": frequency_per_week,
+        "duration_per_use": duration_per_use,
+        "energy_wh_per_day": energy_wh,
+        "energy_kwh_per_day": wh_to_kwh(energy_wh)
+    }
+
+def calculate_other_device(
+    type: str,
+    quantity: float,
+    usage_category: str,
+) -> Dict[str, Any]:
+    watt = OTHER_DEFAULT_WATT.get(type, OTHER_DEFAULT_WATT["Lainnya"])
+    hour = OTHER_USAGE_TO_DAILY_HOURS.get(usage_category, 0.0)
+
+    energy_wh = calculate_energy_wh(quantity, watt, hours_per_day=hour)
+
+    return {
+        "type": type,
+        "quantity": quantity,
+        "watt_per_unit": watt,
+        "hour_per_day": hour,
+        "energy_wh_per_day": energy_wh,
+        "energy_kwh_per_day": wh_to_kwh(energy_wh)
+    }

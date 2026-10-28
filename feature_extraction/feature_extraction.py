@@ -6,7 +6,17 @@ from utils.helper import (
     calculate_rate,
     categorize_nominals
 )
-from core.config.config import configs
+from core.config.config import (
+    configs,
+    DEVICES
+)
+
+from utils.helper import (
+    calculate_always_on_device,
+    calculate_daily_device,
+    calculate_other_device,
+    calculate_weekly_device
+)
 
 def extractor(df: pd.DataFrame, capacity: str):
     if df.empty:
@@ -23,7 +33,7 @@ def extractor(df: pd.DataFrame, capacity: str):
         df["Tarif_PLN_Eksak_Rp"] = 1444.70
 
     if "Nominal_Token_Terakhir_Rp" in df.columns and "Total_Energi_Semua_kWhPerHari" in df.columns:
-        df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - 2500) / 1.05) / df["Tarif_PLN_Eksak_Rp"]
+        df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - 2500) * 1.05) / df["Tarif_PLN_Eksak_Rp"]
         df["Estimasi_Fisika_Durasi_Hari"] = df["Estimasi_kWh_Didapat"] / (df["Total_Energi_Semua_kWhPerHari"] + 0.1)
     else:
         df["Estimasi_Fisika_Durasi_Hari"] = 0.0

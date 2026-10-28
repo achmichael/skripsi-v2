@@ -10,7 +10,7 @@ from utils.helper import (
     ordinal_encode,
     frequency_mapping,
     frequency_encode,
-    calculate_rate
+    calculate_rate,
 )
 
 def handle_missing_value(df: pd.DataFrame) -> pd.DataFrame:
@@ -71,4 +71,3 @@ def train_test_split(x_data: list[list[float]], y_data: list[list[float]], test_
     y_test = [item[1] for item in test_data]
 
     return x_train, y_train, x_test, y_test
-

@@ -33,13 +33,22 @@ def save_loss_curve(history: dict, save_path: str, model_type: str):
             zorder=3,
         )
 
-    best_epoch = train_loss.index(min(train_loss)) + 1
-    best_val   = min(train_loss)
-    ax.scatter(
-        [best_epoch], [best_val],
-        color="#FFB300", s=60, zorder=5,
-        label=f"Best Train Loss (epoch {best_epoch}: {best_val:.6f})",
-    )
+    if val_loss:
+        best_epoch = val_loss.index(min(val_loss)) + 1
+        best_val   = min(val_loss)
+        ax.scatter(
+            [best_epoch], [best_val],
+            color="#FFB300", s=60, zorder=5,
+            label=f"Best Val Loss (epoch {best_epoch}: {best_val:.6f})",
+        )
+    else:
+        best_epoch = train_loss.index(min(train_loss)) + 1
+        best_val   = min(train_loss)
+        ax.scatter(
+            [best_epoch], [best_val],
+            color="#FFB300", s=60, zorder=5,
+            label=f"Best Train Loss (epoch {best_epoch}: {best_val:.6f})",
+        )
 
     ax.axvline(
         x=trained_epochs, color="gray", linestyle=":", linewidth=1.2,
