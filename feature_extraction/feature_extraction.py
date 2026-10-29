@@ -1,3 +1,4 @@
+from matplotlib.pylab import axis
 from pyexpat import errors
 from matplotlib.style import available
 import numpy as np
@@ -9,7 +10,7 @@ from utils.helper import (
 
 from core.config.config import (
     configs,
-    DEVICES, ENERGY_COLS
+    DEVICES, ENERGY_COLS, PBJT_CITY, PBJT_DEFAULT
 )
 
 from utils.helper import (
@@ -18,6 +19,31 @@ from utils.helper import (
     calculate_other_device,
     calculate_weekly_device
 )
+
+def _pbjt_rate(city, power):
+    if pd.isna(city):
+        return PBJT_DEFAULT
+
+    name = str(city).strip().lower()
+    for key, value in PBJT_CITY.items():
+        if key.lower() != name:
+            continue
+
+        if isinstance(value, dict):
+            try:
+                va = float(power)
+            except (TypeError, ValueError):
+                return PBJT_DEFAULT
+
+            if va <= 1000:
+                return value["250 - 1.000 VA"]
+            if va <= 3500:
+                return value["1.001 - 3.500 VA"]
+            return value["> 3.500 VA"]
+
+        return value
+
+    return PBJT_DEFAULT
 
 def extractor(df: pd.DataFrame, capacity: str):
     if df.empty:
@@ -37,8 +63,16 @@ def extractor(df: pd.DataFrame, capacity: str):
     else:
         df["Tarif_PLN_Eksak_Rp"] = 1444.70
 
+    if "Kota/Kabupaten" in df.columns:
+        pbjt = df.apply(
+            lambda row: _pbjt_rate(row["Kota/Kabupaten"], row.get("Daya_Listrik_Rumah_VA")),
+            axis=1,
+        )
+    else:
+        pbjt = PBJT_DEFAULT
+
     if "Nominal_Token_Terakhir_Rp" in df.columns and "Total_Energi_Semua_kWhPerHari" in df.columns:
-        df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - 2500) - 1.05) / df["Tarif_PLN_Eksak_Rp"]
+        df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - 2500) / (1 + pbjt)) / df["Tarif_PLN_Eksak_Rp"]
         df["Estimasi_Fisika_Durasi_Hari"] = df["Estimasi_kWh_Didapat"] / (df["Total_Energi_Semua_kWhPerHari"] + 0.1)
     else:
         df["Estimasi_Fisika_Durasi_Hari"] = 0.0

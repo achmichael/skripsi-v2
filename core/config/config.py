@@ -1,5 +1,7 @@
 from typing import Any
 
+PBJT_DEFAULT = 0.10
+
 PBJT_CITY = {
     "Bandung": 0.08,
     "Banjarmasin": 0.10,

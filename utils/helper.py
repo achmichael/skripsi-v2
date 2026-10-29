@@ -16,7 +16,8 @@ from core.config.config import (
     OTHER_DEFAULT_WATT,
     OTHER_USAGE_TO_DAILY_HOURS,
     WEEKLY_DEVICE_WATT,
-    WEEKLY_DEVICE_DURATION_HOURS
+    WEEKLY_DEVICE_DURATION_HOURS, PBJT_DEFAULT,
+    PBJT_CITY
 )
 
 def create_model(capacity, layers):
@@ -83,6 +84,31 @@ def calculate_rate(row):
             return 1699.53
         case _:
             return 1444.70
+
+def pbjt_rate(city, power):
+    if pd.isna(city):
+        return PBJT_DEFAULT
+
+    name = str(city).strip().lower()
+    for key, value in PBJT_CITY.items():
+        if key.lower() != name:
+            continue
+
+        if isinstance(value, dict):
+            try:
+                va = float(power)
+            except (TypeError, ValueError):
+                return PBJT_DEFAULT
+
+            if va <= 1000:
+                return value["250 - 1.000 VA"]
+            if va <= 3500:
+                return value["1.001 - 3.500 VA"]
+            return value["> 3.500 VA"]
+
+        return value
+
+    return PBJT_DEFAULT
 
 def frequency_mapping(df, configs):
     mappings = {}
