@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 from utils.helper import (
     calculate_rate,
-    categorize_nominals
+    categorize_nominals,
+    pbjt_rate
 )
 
 from core.config.config import (
@@ -19,31 +20,6 @@ from utils.helper import (
     calculate_other_device,
     calculate_weekly_device
 )
-
-def _pbjt_rate(city, power):
-    if pd.isna(city):
-        return PBJT_DEFAULT
-
-    name = str(city).strip().lower()
-    for key, value in PBJT_CITY.items():
-        if key.lower() != name:
-            continue
-
-        if isinstance(value, dict):
-            try:
-                va = float(power)
-            except (TypeError, ValueError):
-                return PBJT_DEFAULT
-
-            if va <= 1000:
-                return value["250 - 1.000 VA"]
-            if va <= 3500:
-                return value["1.001 - 3.500 VA"]
-            return value["> 3.500 VA"]
-
-        return value
-
-    return PBJT_DEFAULT
 
 def extractor(df: pd.DataFrame, capacity: str):
     if df.empty:
@@ -65,7 +41,7 @@ def extractor(df: pd.DataFrame, capacity: str):
 
     if "Kota/Kabupaten" in df.columns:
         pbjt = df.apply(
-            lambda row: _pbjt_rate(row["Kota/Kabupaten"], row.get("Daya_Listrik_Rumah_VA")),
+            lambda row: pbjt_rate(row["Kota/Kabupaten"], row.get("Daya_Listrik_Rumah_VA")),
             axis=1,
         )
     else:
