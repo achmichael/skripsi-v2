@@ -12,6 +12,7 @@ from utils.helper import (
     frequency_encode,
     calculate_rate,
 )
+from preprocessing.compute_derived_columns import compute_derived_columns
 
 def handle_missing_value(df: pd.DataFrame) -> pd.DataFrame:
     nullable_cols = configs["preprocessing"]["nullable_cols"]
@@ -49,7 +50,9 @@ def preprocess(path: str):
 
     mapped = frequency_encode(handled, frequency_mapping(df, configs))
 
-    encoded = ordinal_encode(mapped, configs)
+    computed = compute_derived_columns(mapped)
+
+    encoded = ordinal_encode(computed, configs)
 
     return encoded
 

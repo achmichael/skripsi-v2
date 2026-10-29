@@ -27,6 +27,15 @@ def extractor(df: pd.DataFrame, capacity: str):
     target_col = configs["models_config"][capacity]["target"]
     use_log = configs["models_config"][capacity]["use_log_transform"]
 
+    energy_cols = [
+        "Kulkas_Energi_kWhPerHari", "TV_Energi_kWhPerHari", "AC_Energi_kWhPerHari",
+        "Kipas_Energi_kWhPerHari", "RiceCooker_Energi_kWhPerHari", "MesinCuci_Energi_kWhPerHari"
+    ]
+
+    total_energi = sum(df[col] for col in energy_cols if col in df.columns)
+
+    df["Total_Energi_Semua_kWhPerHari"] = total_energi
+
     if "Daya_Listrik_Rumah_VA" in df.columns:
         df["Tarif_PLN_Eksak_Rp"] = df.apply(calculate_rate, 1)
     else:
@@ -43,26 +52,9 @@ def extractor(df: pd.DataFrame, capacity: str):
         df["Durasi_Dari_Frekuensi"] = (30.0 / freq).clip(1, 60)
         df["Durasi_Dari_Frekuensi"] = df["Durasi_Dari_Frekuensi"].fillna(30.0)
 
-    if ("Nominal_Token_Terakhir_Rp" in df.columns and
-        "Estimasi_Tarif_Per_kWh_Rp" in df.columns and
-        "Total_Energi_Semua_kWhPerHari" in df.columns):
-        kwh_beli = df["Nominal_Token_Terakhir_Rp"] / (
-            df["Estimasi_Tarif_Per_kWh_Rp"].replace(0, 1444.70)
-        )
-        df["Rasio_Token_vs_Energi"] = kwh_beli / (
-            df["Total_Energi_Semua_kWhPerHari"] + 0.1
-        )
-
     if "Nominal_Token_Terakhir_Rp" in df.columns:
         df["Token_Nominal_Kategori"] = df["Nominal_Token_Terakhir_Rp"].apply(
             categorize_nominals
-        )
-
-    if ("Total_Energi_Semua_kWhPerHari" in df.columns and
-        "Nominal_Token_Terakhir_Rp" in df.columns):
-        df["Energi_Per_Nominal"] = (
-            df["Total_Energi_Semua_kWhPerHari"] /
-            (df["Nominal_Token_Terakhir_Rp"] / 1000.0 + 0.01)
         )
 
     if ("Estimasi_Fisika_Durasi_Hari" in df.columns and
@@ -72,11 +64,6 @@ def extractor(df: pd.DataFrame, capacity: str):
         )
         df["Rasio_Fisika_vs_Frekuensi"] = df["Estimasi_Fisika_Durasi_Hari"] / (df["Durasi_Dari_Frekuensi"] + 1e-8)
         df["Rasio_Fisika_vs_Frekuensi"] = df["Rasio_Fisika_vs_Frekuensi"].clip(0.1, 10.0)
-
-    if "Daya_Listrik_Rumah_VA" in df.columns and "Total_Energi_Semua_kWhPerHari" in df.columns:
-        df["Daya_x_TotalEnergi"] = (
-            df["Daya_Listrik_Rumah_VA"] * df["Total_Energi_Semua_kWhPerHari"]
-        )
 
     # NOW check for available columns
     available_columns = list(df.columns)

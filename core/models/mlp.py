@@ -32,7 +32,6 @@ class MLP:
             Linear()
         )
 
-
     def forward(self, x):
         output = x
         for layer in self.layers:

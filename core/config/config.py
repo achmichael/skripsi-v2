@@ -178,7 +178,7 @@ configs: dict[str, Any] = {
             "use_log_transform": True,
             "asymmetric_alpha": 0.6,
             "asymmetric_beta": 0.4,
-            "clip_value": .0,
+            "clip_value": 2.0,
             "features": list(FEATURES),
         },
         "2200": {
@@ -280,7 +280,7 @@ configs: dict[str, Any] = {
                 "3/4 PK": 2,
                 "1 PK": 3,
                 "1.5 PK": 4,
-                "2 PK": 5,
+                "2 PK atau lebih": 5,
             },
         },
         "no_scaling_cols": [
