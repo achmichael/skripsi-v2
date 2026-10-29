@@ -65,6 +65,11 @@ REDUNDANT_WITH_ENERGY = [
     "MesinCuci_EstimasiDurasiSekaliPakaiJam",
 ]
 
+ENERGY_COLS = [
+    "Kulkas_Energi_kWhPerHari", "TV_Energi_kWhPerHari", "AC_Energi_kWhPerHari",
+    "Kipas_Energi_kWhPerHari", "RiceCooker_Energi_kWhPerHari", "MesinCuci_Energi_kWhPerHari"
+]
+
 FEATURES = (
     PROFILE + TOKEN_BEHAVIOR + KULKAS + TV + AC + KIPAS + RICE_COOKER + MESIN_CUCI + FEATURE_EXTRACTION
 )

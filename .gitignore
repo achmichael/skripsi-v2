@@ -4,3 +4,4 @@ results/**/metrics/
 *.txt
 *.zip
 *.csv
+*.__pycache__

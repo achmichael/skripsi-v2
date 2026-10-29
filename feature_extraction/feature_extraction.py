@@ -6,9 +6,10 @@ from utils.helper import (
     calculate_rate,
     categorize_nominals
 )
+
 from core.config.config import (
     configs,
-    DEVICES
+    DEVICES, ENERGY_COLS
 )
 
 from utils.helper import (
@@ -27,12 +28,7 @@ def extractor(df: pd.DataFrame, capacity: str):
     target_col = configs["models_config"][capacity]["target"]
     use_log = configs["models_config"][capacity]["use_log_transform"]
 
-    energy_cols = [
-        "Kulkas_Energi_kWhPerHari", "TV_Energi_kWhPerHari", "AC_Energi_kWhPerHari",
-        "Kipas_Energi_kWhPerHari", "RiceCooker_Energi_kWhPerHari", "MesinCuci_Energi_kWhPerHari"
-    ]
-
-    total_energi = sum(df[col] for col in energy_cols if col in df.columns)
+    total_energi = sum(df[col] for col in ENERGY_COLS if col in df.columns)
 
     df["Total_Energi_Semua_kWhPerHari"] = total_energi
 
@@ -52,20 +48,11 @@ def extractor(df: pd.DataFrame, capacity: str):
         df["Durasi_Dari_Frekuensi"] = (30.0 / freq).clip(1, 60)
         df["Durasi_Dari_Frekuensi"] = df["Durasi_Dari_Frekuensi"].fillna(30.0)
 
-    if "Nominal_Token_Terakhir_Rp" in df.columns:
-        df["Token_Nominal_Kategori"] = df["Nominal_Token_Terakhir_Rp"].apply(
-            categorize_nominals
-        )
-
     if ("Estimasi_Fisika_Durasi_Hari" in df.columns and
         "Durasi_Dari_Frekuensi" in df.columns):
-        df["Fisika_vs_Frekuensi_Gap"] = (
-            df["Estimasi_Fisika_Durasi_Hari"] - df["Durasi_Dari_Frekuensi"]
-        )
         df["Rasio_Fisika_vs_Frekuensi"] = df["Estimasi_Fisika_Durasi_Hari"] / (df["Durasi_Dari_Frekuensi"] + 1e-8)
         df["Rasio_Fisika_vs_Frekuensi"] = df["Rasio_Fisika_vs_Frekuensi"].clip(0.1, 10.0)
 
-    # NOW check for available columns
     available_columns = list(df.columns)
 
     missing = []
