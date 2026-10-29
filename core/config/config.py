@@ -296,11 +296,9 @@ configs: dict[str, Any] = {
             "Alat_Lain_3_Kategori",
             "AC_PK_Kategori",
             "Status_Subsidi_Listrik",
-            "Token_Nominal_Kategori",
             "Alat_Lain_1_Jenis",
             "Alat_Lain_2_Jenis",
             "Alat_Lain_3_Jenis",
-            "Token_Nominal_Kategori"
         ],
         "missing_value_strategy": ["mode", "IQR", "clear"],
         "frequency_cols": [
