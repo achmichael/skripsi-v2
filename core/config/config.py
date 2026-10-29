@@ -1,5 +1,52 @@
 from typing import Any
 
+PBJT_CITY = {
+    "Bandung": 0.08,
+    "Banjarmasin": 0.10,
+    "Bantul": 0.10,
+    "Batam": 0.07,
+    "Bekasi": 0.10,
+    "Bogor": 0.10,
+    "Bojonegoro": 0.10,
+    "Cimahi": 0.09,
+    "Cirebon": 0.10,
+    "Denpasar": 0.10,
+    "Depok": {
+        "250 - 1.000 VA": 0.03,
+        "1.001 - 3.500 VA": 0.04,
+        "> 3.500 VA": 0.07
+    },
+    "Gresik": 0.10,
+    "Jakarta Barat": 0.03,
+    "Jakarta Pusat": 0.03,
+    "Jakarta Selatan": 0.03,
+    "Jakarta Timur": 0.03,
+    "Jakarta Utara": 0.03,
+    "Jember": 0.10,
+    "Kediri": 0.10,
+    "Lamongan": 0.10,
+    "Madiun": 0.10,
+    "Makassar": 0.10,
+    "Malang": 0.10,
+    "Medan": 0.10,
+    "Mojokerto": 0.10,
+    "Palembang": 0.10,
+    "Pamekasan": 0.10,
+    "Pasuruan": 0.10,
+    "Pekanbaru": 0.10,
+    "Pontianak": 0.10,
+    "Probolinggo": 0.10,
+    "Purwokerto": 0.10,
+    "Semarang": 0.10,
+    "Sidoarjo": 0.10,
+    "Sleman": 0.10,
+    "Solo": 0.10,
+    "Surabaya": 0.10,
+    "Tangerang": 0.10,
+    "Tangerang Selatan": 0.10,
+    "Yogyakarta": 0.10
+}
+
 PROFILE = [
     "Jumlah_Anggota_Keluarga",
     "Status_Subsidi_Listrik",
