@@ -36,8 +36,10 @@ def load_model(model_path, capacity):
     weight_index = 0
     for layer in model.layers:
         if hasattr(layer, 'weights'):
-            layer.weights = np.array(model_data['weights'][weight_index]['weights'], dtype=np.float32)
-            layer.biases = np.array(model_data['weights'][weight_index]['biases'], dtype=np.float32)
+            weight_data = model_data['weights'][weight_index]
+            layer.weights = np.array(weight_data['weights'], dtype=np.float32)
+            if 'biases' in weight_data:
+                layer.biases = np.array(weight_data['biases'], dtype=np.float32)
             weight_index += 1
     
     return model

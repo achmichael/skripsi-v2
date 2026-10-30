@@ -3,6 +3,7 @@ from pyexpat import errors
 from matplotlib.style import available
 import numpy as np
 import pandas as pd
+
 from utils.helper import (
     calculate_rate,
     categorize_nominals,
@@ -48,11 +49,11 @@ def extractor(df: pd.DataFrame, capacity: str):
         pbjt = PBJT_DEFAULT
 
     if "Nominal_Token_Terakhir_Rp" in df.columns and "Total_Energi_Semua_kWhPerHari" in df.columns:
+        # 1 = Tarif dasar = 100%
         df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - 2500) / (1 + pbjt)) / df["Tarif_PLN_Eksak_Rp"]
         df["Estimasi_Fisika_Durasi_Hari"] = df["Estimasi_kWh_Didapat"] / (df["Total_Energi_Semua_kWhPerHari"] + 0.1)
     else:
         df["Estimasi_Fisika_Durasi_Hari"] = 0.0
-
     if "Frekuensi_Isi_Token_Per_Bulan" in df.columns:
         freq = df["Frekuensi_Isi_Token_Per_Bulan"].replace(0, np.nan)
         df["Durasi_Dari_Frekuensi"] = (30.0 / freq).clip(1, 60)

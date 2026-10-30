@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediksi Token Listrik</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0e27;
+            color: #e4e6eb;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 177, 66, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 90%, rgba(72, 187, 120, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 3rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header { 
+            text-align: center; 
+            margin-bottom: 3rem;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+            color: #ffc107;
+        }
+
+        .header h1 { 
+            font-size: 2.5rem; 
+            font-weight: 700; 
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #b8b9c9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p { 
+            font-size: 1.05rem; 
+            color: #8e91a8;
+        }
+
+        .card { 
+            background: rgba(20, 24, 45, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px; 
+            padding: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .capacity-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            padding: 1.5rem;
+            background: rgba(10, 14, 39, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .capacity-btn {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #8e91a8;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .capacity-btn:first-child { border-radius: 12px 0 0 12px; border-right: none; }
+        .capacity-btn:last-child { border-radius: 0 12px 12px 0; border-left: none; }
+        .capacity-btn:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
+
+        .capacity-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .capacity-btn:hover::before { left: 100%; }
+
+        .capacity-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #764ba2;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .capacity-label { 
+            font-size: 1.5rem; 
+            display: block; 
+            font-weight: 700;
+        }
+
+        .capacity-sublabel { 
+            font-size: 0.75rem; 
+            opacity: 0.8; 
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .form-content { padding: 2rem; }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .form-row { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 1.25rem; 
+            margin-bottom: 2rem; 
+        }
+
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        label { 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            color: #b8b9c9; 
+            margin-bottom: 0.5rem;
+        }
+
+        input, select { 
+            padding: 0.875rem 1rem; 
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px; 
+            font-size: 0.95rem;
+            color: #e4e6eb;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder { color: #5a5d7a; }
+
+        select { cursor: pointer; }
+        select option { background: #1a1f3a; color: #e4e6eb; }
+
+        .device-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .device-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .device-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e4e6eb;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .device-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active { transform: translateY(0); }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-panel {
+            margin-top: 2rem;
+            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 16px;
+            text-align: center;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .result-panel.show { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #b8b9c9;
+            margin-bottom: 0.75rem;
+        }
+
+        .result-value {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-unit {
+            font-size: 1.5rem;
+            color: #8e91a8;
+            font-weight: 600;
+        }
+
+        .result-meta {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #8e91a8;
+        }
+
+        .error-panel {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ff6b6b;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .error-panel.show { display: block; }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.75rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .capacity-selector { grid-template-columns: 1fr; }
+            .capacity-btn { border-radius: 12px !important; border: 2px solid rgba(255, 255, 255, 0.1) !important; margin-bottom: 0.5rem; }
+            .result-value { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="header-badge">Neural Network Prediction</div>
+            <h1>Prediksi Token Listrik</h1>
+            <p>Estimasi durasi penggunaan token berdasarkan pola konsumsi rumah tangga</p>
+        </div>
+        
+        <div class="card">
+            <div class="capacity-selector">
+                <button class="capacity-btn active" data-capacity="900">
+                    <span class="capacity-label">900</span>
+                    <span class="capacity-sublabel">VA</span>
+                </button>
+                <button class="capacity-btn" data-capacity="1300">
+                    <span class="capacity-label">1300</span>
+                    <span class="capacity-sublabel">VA</span>
+                </button>
+                <button class="capacity-btn" data-capacity="2200">
+                    <span class="capacity-label">2200</span>
+                    <span class="capacity-sublabel">VA</span>
+                </button>
+            </div>
+
+            <form id="predictionForm" class="form-content">
+                <div class="section-title">Informasi Dasar</div>
+                
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Kota/Kabupaten</label>
+                        <select name="kota" required>
+                            <option value="">Pilih lokasi</option>
+                            <option value="Jakarta Selatan">Jakarta Selatan</option>
+                            <option value="Jakarta Pusat">Jakarta Pusat</option>
+                            <option value="Jakarta Barat">Jakarta Barat</option>
+                            <option value="Jakarta Timur">Jakarta Timur</option>
+                            <option value="Jakarta Utara">Jakarta Utara</option>
+                            <option value="Bandung">Bandung</option>
+                            <option value="Surabaya">Surabaya</option>
+                            <option value="Medan">Medan</option>
+                            <option value="Semarang">Semarang</option>
+                            <option value="Makassar">Makassar</option>
+                            <option value="Tangerang">Tangerang</option>
+                            <option value="Depok">Depok</option>
+                            <option value="Bekasi">Bekasi</option>
+                            <option value="Yogyakarta">Yogyakarta</option>
+                            <option value="Malang">Malang</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Jumlah Anggota Keluarga</label>
+                        <input type="number" name="jumlah_anggota" min="1" max="20" value="4" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Status Subsidi</label>
+                        <select name="status_subsidi" required>
+                            <option value="Subsidi">Subsidi</option>
+                            <option value="Non Subsidi">Non Subsidi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Nominal Token Terakhir (Rp)</label>
+                        <input type="number" name="nominal_token" min="20000" max="5000000" step="10000" value="100000" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Frekuensi Isi Token/Bulan</label>
+                        <input type="number" name="frekuensi_isi" min="1" max="30" value="3" required>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 2rem;">Perangkat Elektronik</div>
+
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">🧊</div>
+                        <span>Kulkas</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Jumlah</label>
+                            <input type="number" name="kulkas_jumlah" min="0" max="10" value="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Ukuran</label>
+                            <select name="kulkas_kategori">
+                                <option value="Tidak ada">Tidak ada</option>
+                                <option value="Kecil / 1 pintu">Kecil (1 pintu)</option>
+                                <option value="Sedang / 2 pintu" selected>Sedang (2 pintu)</option>
+                                <option value="Besar / side by side">Besar (side by side)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">📺</div>
+                        <span>Televisi</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Jumlah</label>
+                            <input type="number" name="tv_jumlah" min="0" max="10" value="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Intensitas Penggunaan</label>
+                            <select name="tv_kategori">
+                                <option value="Tidak ada / tidak digunakan">Tidak digunakan</option>
+                                <option value="Jarang, kurang dari 2 jam per hari">Jarang (&lt;2 jam/hari)</option>
+                                <option value="Sedang, sekitar 2-5 jam per hari" selected>Sedang (2-5 jam/hari)</option>
+                                <option value="Sering, sekitar 6-10 jam per hari">Sering (6-10 jam/hari)</option>
+                                <option value="Sangat sering, lebih dari 10 jam per hari">Sangat sering (&gt;10 jam/hari)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">❄️</div>
+                        <span>Air Conditioner</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Jumlah</label>
+                            <input type="number" name="ac_jumlah" min="0" max="10" value="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Kapasitas</label>
+                            <select name="ac_pk">
+                                <option value="Tidak ada AC" selected>Tidak ada</option>
+                                <option value="1/2 PK">1/2 PK</option>
+                                <option value="3/4 PK">3/4 PK</option>
+                                <option value="1 PK">1 PK</option>
+                                <option value="1.5 PK">1.5 PK</option>
+                                <option value="2 PK atau lebih">2 PK atau lebih</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Intensitas Penggunaan</label>
+                            <select name="ac_kategori">
+                                <option value="Tidak ada / tidak digunakan" selected>Tidak digunakan</option>
+                                <option value="Jarang, kurang dari 2 jam per hari">Jarang (&lt;2 jam/hari)</option>
+                                <option value="Sedang, sekitar 2-5 jam per hari">Sedang (2-5 jam/hari)</option>
+                                <option value="Sering, sekitar 6-10 jam per hari">Sering (6-10 jam/hari)</option>
+                                <option value="Sangat sering, lebih dari 10 jam per hari">Sangat sering (&gt;10 jam/hari)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">💨</div>
+                        <span>Kipas Angin</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Jumlah</label>
+                            <input type="number" name="kipas_jumlah" min="0" max="10" value="2">
+                        </div>
+                        <div class="input-group">
+                            <label>Intensitas Penggunaan</label>
+                            <select name="kipas_kategori">
+                                <option value="Tidak ada / tidak digunakan">Tidak digunakan</option>
+                                <option value="Jarang, kurang dari 2 jam per hari">Jarang (&lt;2 jam/hari)</option>
+                                <option value="Sedang, sekitar 2-5 jam per hari">Sedang (2-5 jam/hari)</option>
+                                <option value="Sering, sekitar 6-10 jam per hari" selected>Sering (6-10 jam/hari)</option>
+                                <option value="Sangat sering, lebih dari 10 jam per hari">Sangat sering (&gt;10 jam/hari)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">🍚</div>
+                        <span>Rice Cooker</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Jumlah</label>
+                            <input type="number" name="rice_cooker_jumlah" min="0" max="10" value="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Intensitas Penggunaan</label>
+                            <select name="rice_cooker_kategori">
+                                <option value="Tidak ada / tidak digunakan">Tidak digunakan</option>
+                                <option value="Jarang, kurang dari 2 jam per hari">Jarang (&lt;2 jam/hari)</option>
+                                <option value="Sedang, sekitar 2-5 jam per hari" selected>Sedang (2-5 jam/hari)</option>
+                                <option value="Sering, sekitar 6-10 jam per hari">Sering (6-10 jam/hari)</option>
+                                <option value="Sangat sering, lebih dari 10 jam per hari">Sangat sering (&gt;10 jam/hari)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">🧺</div>
+                        <span>Mesin Cuci</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Jumlah</label>
+                            <input type="number" name="mesin_cuci_jumlah" min="0" max="10" value="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Frekuensi Penggunaan</label>
+                            <select name="mesin_cuci_kategori">
+                                <option value="Tidak ada / tidak digunakan">Tidak digunakan</option>
+                                <option value="Jarang, 1-2 kali per minggu">Jarang (1-2x/minggu)</option>
+                                <option value="Sedang, 3-4 kali per minggu" selected>Sedang (3-4x/minggu)</option>
+                                <option value="Sering, 5-6 kali per minggu">Sering (5-6x/minggu)</option>
+                                <option value="Sangat sering, hampir setiap hari">Sangat sering (setiap hari)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span style="position: relative; z-index: 1;">Hitung Prediksi</span>
+                </button>
+
+                <div class="result-panel" id="result">
+                    <div class="result-label">Estimasi Durasi Token</div>
+                    <div class="result-value" id="resultValue">0</div>
+                    <div class="result-unit">Hari</div>
+                    <div class="result-meta">
+                        Model: <span id="resultCapacity">900</span> VA
+                    </div>
+                </div>
+
+                <div class="error-panel" id="error"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const capacityBtns = document.querySelectorAll('.capacity-btn');
+        const form = document.getElementById('predictionForm');
+        const result = document.getElementById('result');
+        const error = document.getElementById('error');
+        let currentCapacity = '900';
+
+        capacityBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                capacityBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCapacity = btn.dataset.capacity;
+                result.classList.remove('show');
+                error.classList.remove('show');
+            });
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = {
+                capacity: currentCapacity,
+                kota: formData.get('kota'),
+                jumlah_anggota: parseInt(formData.get('jumlah_anggota')),
+                status_subsidi: formData.get('status_subsidi'),
+                nominal_token: parseInt(formData.get('nominal_token')),
+                frekuensi_isi: parseInt(formData.get('frekuensi_isi')),
+                kulkas_jumlah: parseInt(formData.get('kulkas_jumlah')),
+                kulkas_kategori: formData.get('kulkas_kategori'),
+                tv_jumlah: parseInt(formData.get('tv_jumlah')),
+                tv_kategori: formData.get('tv_kategori'),
+                ac_jumlah: parseInt(formData.get('ac_jumlah')),
+                ac_pk: formData.get('ac_pk'),
+                ac_kategori: formData.get('ac_kategori'),
+                kipas_jumlah: parseInt(formData.get('kipas_jumlah')),
+                kipas_kategori: formData.get('kipas_kategori'),
+                rice_cooker_jumlah: parseInt(formData.get('rice_cooker_jumlah')),
+                rice_cooker_kategori: formData.get('rice_cooker_kategori'),
+                mesin_cuci_jumlah: parseInt(formData.get('mesin_cuci_jumlah')),
+                mesin_cuci_kategori: formData.get('mesin_cuci_kategori')
+            };
+
+            const btn = form.querySelector('.submit-btn');
+            const btnText = btn.querySelector('span');
+            btn.disabled = true;
+            btnText.textContent = 'Memproses...';
+            result.classList.remove('show');
+            error.classList.remove('show');
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const json = await response.json();
+
+                if (json.success) {
+                    document.getElementById('resultValue').textContent = json.prediction;
+                    document.getElementById('resultCapacity').textContent = json.capacity;
+                    result.classList.add('show');
+                    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    throw new Error(json.message || 'Prediction failed');
+                }
+            } catch (err) {
+                error.textContent = err.message;
+                error.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Hitung Prediksi';
+            }
+        });
+    </script>
+</body>
+</html>
