@@ -5,3 +5,4 @@ results/**/metrics/
 *.zip
 *.csv
 *.__pycache__
+api/__pycache__/
