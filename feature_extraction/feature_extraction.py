@@ -1,6 +1,3 @@
-from matplotlib.pylab import axis
-from pyexpat import errors
-from matplotlib.style import available
 import numpy as np
 import pandas as pd
 
