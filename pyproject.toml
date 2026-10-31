@@ -3,9 +3,14 @@ name = "prediksi-token"
 version = "1.0.0"
 description = "Neural network model untuk prediksi durasi token listrik prabayar PLN"
 requires-python = ">=3.9"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    # tambahkan library runtime lain yang dipakai backend
+]
 
 [tool.uv]
-package = False
+package = false
 
 [tool.vercel]
 entrypoint = "backend.app.api.index:app"
