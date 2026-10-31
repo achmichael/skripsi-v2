@@ -4,11 +4,5 @@
       "includeFiles": "results/**/*.json",
       "maxDuration": 10
     }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/backend/app/api/index"
-    }
-  ]
+  }
 }
