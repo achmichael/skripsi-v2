@@ -1,7 +1,6 @@
 {
   "functions": {
     "backend/app/api/index.py": {
-      "runtime": "python3.11",
       "includeFiles": "results/**/*.json",
       "maxDuration": 10
     }
