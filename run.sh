@@ -64,7 +64,7 @@ echo "=========================================="
 
 cd "$ROOT_DIR"
 
-python -m uvicorn backend.app.main:app \
+python -m uvicorn backend.app.api.index:app \
     --host 0.0.0.0 \
     --port 8000 \
     --reload &
