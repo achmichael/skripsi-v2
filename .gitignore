@@ -47,3 +47,4 @@ results/**/*.png
 !data/*.csv
 data/dataset.csv
 data/prabayar_Tidak_tahu.csv
+!requirements.txt
