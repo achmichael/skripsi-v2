@@ -13,12 +13,7 @@ data/
 experiments/
 evaluations/
 training/
-preprocessing/
-postprocessing/
-transformation/
 visualization/
-feature_extraction/
-core/
 frontend/node_modules
 frontend/.next
 .claude/
