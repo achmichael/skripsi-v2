@@ -24,6 +24,8 @@ def load_model(model_path, capacity):
     """
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model tidak ditemukan: {model_path}")
+
+    print('model path', model_path)
     
     with open(model_path, 'r') as f:
         model_data = json.load(f)

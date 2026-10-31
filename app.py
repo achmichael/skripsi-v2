@@ -34,23 +34,23 @@ class PredictionInput(BaseModel):
     status_subsidi: str = Field(..., description="Subsidi atau Non Subsidi")
     nominal_token: int = Field(..., ge=20000, le=5000000)
     frekuensi_isi: int = Field(..., ge=1, le=30)
-    
+
     kulkas_jumlah: int = Field(0, ge=0, le=10)
     kulkas_kategori: str = "Tidak ada"
-    
+
     tv_jumlah: int = Field(0, ge=0, le=10)
     tv_kategori: str = "Tidak ada / tidak digunakan"
-    
+
     ac_jumlah: int = Field(0, ge=0, le=10)
     ac_pk: str = "Tidak ada AC"
     ac_kategori: str = "Tidak ada / tidak digunakan"
-    
+
     kipas_jumlah: int = Field(0, ge=0, le=10)
     kipas_kategori: str = "Tidak ada / tidak digunakan"
-    
+
     rice_cooker_jumlah: int = Field(0, ge=0, le=10)
     rice_cooker_kategori: str = "Tidak ada / tidak digunakan"
-    
+
     mesin_cuci_jumlah: int = Field(0, ge=0, le=10)
     mesin_cuci_kategori: str = "Tidak ada / tidak digunakan"
 
@@ -64,7 +64,7 @@ async def make_prediction(data: PredictionInput):
     try:
         if data.capacity not in ["900", "1300", "2200"]:
             raise HTTPException(400, "Capacity harus 900, 1300, atau 2200")
-        
+
         df_input = pd.DataFrame([{
             "Kota/Kabupaten": data.kota,
             "Daya_Listrik_Rumah_VA": int(data.capacity),
@@ -87,14 +87,14 @@ async def make_prediction(data: PredictionInput):
             "MesinCuci_Kategori": data.mesin_cuci_kategori,
             "Token_Habis_Dalam_Hari": 0
         }])
-        
+
         handled = handle_missing_value(df_input)
         mapped = frequency_encode(handled, frequency_mapping(df_input, configs))
         computed = compute_derived_columns(mapped)
         encoded = ordinal_encode(computed, configs)
-        
+
         x_data, _, _, _ = extractor(encoded, data.capacity)
-        
+
         cfg = configs["models_config"][data.capacity]
         prediction = predict(
             model=models_cache[data.capacity],
@@ -103,16 +103,16 @@ async def make_prediction(data: PredictionInput):
             y_scaler=scalers_cache[data.capacity]['y_scaler'],
             use_log=cfg['use_log_transform']
         )
-        
+
         result = round(prediction[0], 2)
-        
+
         return JSONResponse({
             "success": True,
             "prediction": result,
             "unit": "hari",
             "capacity": data.capacity
         })
-        
+
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(500, f"Prediction error: {str(e)}")

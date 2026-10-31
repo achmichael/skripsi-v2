@@ -1,8 +1,49 @@
-*.md
-*.png
-results/**/metrics/*.png
-*.txt
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+build/
+.vite/
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+results/**/*.png
 *.zip
+
+# Keep important markdown and data
+# !README.md
+# !DESIGN.md
+# !frontend/README.md
+# !backend/README.md
+*.md
+*.txt
 *.csv
-*.__pycache__
-api/__pycache__/
+!data/*.csv
+data/dataset.csv
+data/prabayar_Tidak_tahu.csv
