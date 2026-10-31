@@ -3,16 +3,41 @@
   "builds": [
     {
       "src": "app/api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "includeFiles": "results/**/*.json"
-      }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "app/api/index.py"
+      "dest": "app/api/index.py",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"]
+    }
+  ],
+  "build": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://skripsi.mchl.my.id"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Accept, Authorization"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Max-Age",
+          "value": "86400"
+        }
+      ]
     }
   ]
 }
