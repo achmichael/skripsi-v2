@@ -2,7 +2,6 @@
   "name": "prediksi-token-frontend",
   "version": "1.0.0",
   "type": "module",
-  "proxy": "https://api.skripsi.mchl.my.id",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
