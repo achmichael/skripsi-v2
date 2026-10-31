@@ -4,6 +4,9 @@ version = "1.0.0"
 description = "Neural network model untuk prediksi durasi token listrik prabayar PLN"
 requires-python = ">=3.9"
 
+[tool.uv]
+package = False
+
 [tool.vercel]
 entrypoint = "backend.app.api.index:app"
 
