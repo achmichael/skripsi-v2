@@ -47,6 +47,10 @@ APPLIANCE_CATEGORIES = {
 
 AC_PK_OPTIONS = ["Tidak ada AC", "0.5 PK", "0.75 PK", "1 PK", "1.5 PK", "2 PK"]
 
+@router.options("/health")
+def health_options():
+    return {}
+
 @router.get("/health")
 def health_check():
     return {
@@ -124,6 +128,10 @@ def get_appliance_categories():
         "rice_cooker": APPLIANCE_CATEGORIES["rice_cooker"],
         "mesin_cuci": APPLIANCE_CATEGORIES["mesin_cuci"]
     }
+
+@router.options("/predict")
+def predict_options():
+    return {}
 
 @router.post("/predict", response_model=PredictionOutput)
 def predict_token_lifespan(input_data: PredictionInput):
