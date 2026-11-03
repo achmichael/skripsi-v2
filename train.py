@@ -5,7 +5,6 @@ import argparse
 from core.config.config import configs
 from core.losses.mse import MSE
 from core.losses.asymmetric_mse import AsymmetricMSE
-from core.optimizers.adam import Adam
 from utils.helper import create_model
 
 from training.trainer import Trainer
@@ -39,17 +38,13 @@ def train_model(capacity, use_asymmetric=True, verbose=True):
         if verbose:
             print("Using Standard MSE Loss")
 
-    # Setup optimizer
-    optimizer = Adam(learning_rate=cfg["learning_rate"])
-
-    # Train model
+    # Train model with 5-fold cross-validation
     result = Trainer.fit(
         model=model,
         loss=loss,
-        optimizer=optimizer,
         capacity=capacity,
         epochs=1000,
-        val_split=0.1,
+        k_folds=5,
         verbose=verbose
     )
 
@@ -245,15 +240,15 @@ def main():
     print("="*60)
 
     for capacity, res in results.items():
-        eval_res = res['evaluation']
-        test_metrics = eval_res['test']['metrics']
+        metadata = res['training']['metadata']
+        cv = metadata['cv_summary']
 
-        print(f"\n{capacity} VA:")
-        print(f"  Test RMSE: {test_metrics['rmse']:.4f} hari")
-        print(f"  Test MAE:  {test_metrics['mae']:.4f} hari")
-        print(f"  Test MAPE: {test_metrics['mape']:.4f} %")
-        print(f"  Test R²:   {test_metrics['r2']:.4f}")
-        print(f"  Epochs:    {res['training']['metadata']['epochs_trained']}")
+        print(f"\n{capacity} VA ({metadata['k_folds']}-fold CV):")
+        print(f"  MAE:  {cv['mae']['mean']:.4f} ± {cv['mae']['std']:.4f} hari")
+        print(f"  RMSE: {cv['rmse']['mean']:.4f} ± {cv['rmse']['std']:.4f} hari")
+        print(f"  MAPE: {cv['mape']['mean']:.2f} ± {cv['mape']['std']:.2f} %")
+        print(f"  R²:   {cv['r2']['mean']:.4f} ± {cv['r2']['std']:.4f}")
+        print(f"  Epochs (best fold): {metadata['epochs_trained']}")
 
     print("\n" + "="*60)
     print("Training pipeline completed successfully!")
