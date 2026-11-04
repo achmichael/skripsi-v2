@@ -162,10 +162,10 @@ def predict_token_lifespan(input_data: PredictionInput):
         }])
         
         # Feature engineering pipeline
-        handled = handle_missing_value(df_input)
+        computed = compute_derived_columns(df_input)
+        handled = handle_missing_value(computed)
         mapped = frequency_encode(handled, frequency_mapping(df_input, configs))
-        computed = compute_derived_columns(mapped)
-        encoded = ordinal_encode(computed, configs)
+        encoded = ordinal_encode(mapped, configs)
         
         # Extract features
         x_data, _, _, _ = extractor(encoded, input_data.capacity)

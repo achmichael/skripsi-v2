@@ -46,13 +46,13 @@ def handle_missing_value(df: pd.DataFrame) -> pd.DataFrame:
 def preprocess(path: str):
     df = pd.read_csv(path, encoding="utf-8-sig")
 
-    handled = handle_missing_value(df)
+    computed = compute_derived_columns(df)
+
+    handled = handle_missing_value(computed)
 
     mapped = frequency_encode(handled, frequency_mapping(df, configs))
 
-    computed = compute_derived_columns(mapped)
-
-    encoded = ordinal_encode(computed, configs)
+    encoded = ordinal_encode(mapped, configs)
 
     return encoded
 

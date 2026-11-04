@@ -51,7 +51,6 @@ PBJT_CITY = {
 
 PROFILE = [
     "Jumlah_Anggota_Keluarga",
-    "Status_Subsidi_Listrik",
 ]
 
 DEVICES = [
@@ -74,34 +73,27 @@ FEATURE_EXTRACTION = [
 ]
 
 KULKAS = [
-    "Kulkas_Jumlah", "Kulkas_Kategori", "Kulkas_EstimasiWattPerUnit",
-    "Kulkas_EstimasiJamPerHari", "Kulkas_Energi_kWhPerHari",
+    "Kulkas_Jumlah", "Kulkas_Kategori", "Kulkas_Energi_kWhPerHari",
 ]
 
 TV = [
-    "TV_Jumlah", "TV_Kategori", "TV_EstimasiWattPerUnit",
-    "TV_EstimasiJamPerHari", "TV_Energi_kWhPerHari",
+    "TV_Jumlah", "TV_Kategori", "TV_Energi_kWhPerHari",
 ]
 
 AC = [
-    "AC_Jumlah", "AC_PK_Kategori", "AC_Kategori", "AC_EstimasiWattPerUnit",
-    "AC_EstimasiJamPerHari", "AC_Energi_kWhPerHari",
+    "AC_Jumlah", "AC_PK_Kategori", "AC_Kategori", "AC_Energi_kWhPerHari",
 ]
 
 KIPAS = [
-    "Kipas_Jumlah", "Kipas_Kategori", "Kipas_EstimasiWattPerUnit",
-    "Kipas_EstimasiJamPerHari", "Kipas_Energi_kWhPerHari",
+    "Kipas_Jumlah", "Kipas_Kategori", "Kipas_Energi_kWhPerHari",
 ]
 
 RICE_COOKER = [
-    "RiceCooker_Jumlah", "RiceCooker_Kategori", "RiceCooker_EstimasiWattPerUnit",
-    "RiceCooker_EstimasiJamPerHari", "RiceCooker_Energi_kWhPerHari",
+    "RiceCooker_Jumlah", "RiceCooker_Kategori", "RiceCooker_Energi_kWhPerHari",
 ]
 
 MESIN_CUCI = [
-    "MesinCuci_Jumlah", "MesinCuci_Kategori", "MesinCuci_EstimasiWattPerUnit",
-    "MesinCuci_EstimasiFrekuensiPerMinggu", "MesinCuci_EstimasiDurasiSekaliPakaiJam",
-    "MesinCuci_Energi_kWhPerHari",
+    "MesinCuci_Jumlah", "MesinCuci_Kategori", "MesinCuci_Energi_kWhPerHari",
 ]
 
 REDUNDANT_WITH_ENERGY = [
@@ -116,14 +108,26 @@ REDUNDANT_WITH_ENERGY = [
 
 ENERGY_COLS = [
     "Kulkas_Energi_kWhPerHari", "TV_Energi_kWhPerHari", "AC_Energi_kWhPerHari",
-    "Kipas_Energi_kWhPerHari", "RiceCooker_Energi_kWhPerHari", "MesinCuci_Energi_kWhPerHari"
+    "Kipas_Energi_kWhPerHari", "RiceCooker_Energi_kWhPerHari", "MesinCuci_Energi_kWhPerHari",
+    "Alat_Lain_1_Energi_kWhPerHari", "Alat_Lain_2_Energi_kWhPerHari", "Alat_Lain_3_Energi_kWhPerHari"
 ]
 
-OTHER_DEVICES = [
-    "Alat_Lain_1",
-    "Alat_Lain_2",
-    "Alat_Lain_3"
+ALAT_LAIN_1 = [
+    "Alat_Lain_1_Jenis", "Alat_Lain_1_Jumlah", "Alat_Lain_1_Kategori",
+    "Alat_Lain_1_Energi_kWhPerHari",
 ]
+
+ALAT_LAIN_2 = [
+    "Alat_Lain_2_Jenis", "Alat_Lain_2_Jumlah", "Alat_Lain_2_Kategori",
+    "Alat_Lain_2_Energi_kWhPerHari",
+]
+
+ALAT_LAIN_3 = [
+    "Alat_Lain_3_Jenis", "Alat_Lain_3_Jumlah", "Alat_Lain_3_Kategori",
+    "Alat_Lain_3_Energi_kWhPerHari",
+]
+
+OTHER_DEVICES = ALAT_LAIN_1 + ALAT_LAIN_2 + ALAT_LAIN_3
 
 FEATURES = (
     PROFILE + TOKEN_BEHAVIOR + KULKAS + TV + AC + KIPAS + RICE_COOKER + MESIN_CUCI + FEATURE_EXTRACTION + OTHER_DEVICES
@@ -187,11 +191,16 @@ OTHER_DEFAULT_WATT = {
 }
 
 OTHER_DEVICE_USAGE_DAILY_HOURS = {
+    "Tidak diisi": 0.0,
     "Tidak ada / tidak digunakan": 0.0,
     "Jarang, kurang dari 2 jam per hari": 1.0,
     "Sedang, sekitar 2-5 jam per hari": 3.5,
     "Sering, sekitar 6-10 jam per hari": 8.0,
     "Sangat sering, lebih dari 10 jam per hari": 12.0,
+    "Jarang, 1-2 kali per minggu": 0.3,
+    "Sedang, 3-4 kali per minggu": 0.6,
+    "Sering, hampir setiap hari": 1.0,
+    "Sangat sering, setiap hari dan cukup lama": 3.0,
 }
 
 OTHER_DEVICE_WEEKLY_FREQ = {

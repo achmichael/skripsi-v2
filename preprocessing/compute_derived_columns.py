@@ -7,7 +7,9 @@ from core.config.config import (
     WEEKLY_USAGE_FREQUENCY,
     DAILY_DEVICE_WATT,
     WEEKLY_DEVICE_WATT,
-    WEEKLY_DEVICE_DURATION_HOURS
+    WEEKLY_DEVICE_DURATION_HOURS,
+    OTHER_DEFAULT_WATT,
+    OTHER_DEVICE_USAGE_DAILY_HOURS,
 )
 
 def compute_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -31,8 +33,6 @@ def compute_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
     for device, device_type in devices:
         jumlah_col = f"{device}_Jumlah"
         kategori_col = f"{device}_Kategori"
-        watt_col = f"{device}_EstimasiWattPerUnit"
-        jam_col = f"{device}_EstimasiJamPerHari"
         kwh_col = f"{device}_Energi_kWhPerHari"
 
         if jumlah_col not in df.columns:
@@ -94,14 +94,33 @@ def compute_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
             df[frekuensi_col] = frekuensi
             df[durasi_col] = durasi
 
-            jam = frekuensi
-
-        df[watt_col] = watt if isinstance(watt, pd.Series) else pd.Series([watt] * len(df), index=df.index)
-        if device_type != 'weekly':
-            df[jam_col] = jam if isinstance(jam, pd.Series) else pd.Series([jam] * len(df), index=df.index)
-        else:
-            df[jam_col] = jam if isinstance(jam, pd.Series) else pd.Series([jam] * len(df), index=df.index)
-
         df[kwh_col] = (wh_per_hari / 1000.0).round(6)
+
+    for idx in (1, 2, 3):
+        prefix = f"Alat_Lain_{idx}"
+        jumlah_col = f"{prefix}_Jumlah"
+        if jumlah_col not in df.columns:
+            continue
+
+        jenis_col = f"{prefix}_Jenis"
+        kategori_col = f"{prefix}_Kategori"
+
+        jumlah = df[jumlah_col].apply(safe_float)
+
+        if jenis_col in df.columns:
+            watt = df[jenis_col].map(OTHER_DEFAULT_WATT).fillna(
+                OTHER_DEFAULT_WATT["Lainnya"]
+            )
+        else:
+            watt = 0.0
+
+        if kategori_col in df.columns:
+            jam = df[kategori_col].map(OTHER_DEVICE_USAGE_DAILY_HOURS).fillna(0.0)
+        else:
+            jam = 0.0
+
+        wh_per_hari = jumlah * watt * jam
+
+        df[f"{prefix}_Energi_kWhPerHari"] = (wh_per_hari / 1000.0).round(6)
 
     return df

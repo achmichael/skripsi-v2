@@ -1,26 +1,26 @@
 {
     "capacity": "1300",
     "train": {
-        "rmse": 1.1818532857108144,
-        "mae": 0.8304180657681021,
-        "mape": 5.7994593808103145,
-        "r2": 0.9606380256808592,
+        "rmse": 0.801694418340262,
+        "mae": 0.5671234316001399,
+        "mape": 4.455331403830059,
+        "r2": 0.9832365494216148,
         "set_name": "train",
         "n_samples": 81
     },
     "validation": {
-        "rmse": 2.005773140802231,
-        "mae": 1.6632761516187677,
-        "mape": 13.824254725515898,
-        "r2": 0.899239229272527,
+        "rmse": 1.9127931679579513,
+        "mae": 1.5948860629612542,
+        "mape": 10.201365524894328,
+        "r2": 0.8616588465824931,
         "set_name": "validation",
         "n_samples": 20
     },
     "test": {
-        "rmse": 2.005773140802231,
-        "mae": 1.6632761516187677,
-        "mape": 13.824254725515898,
-        "r2": 0.899239229272527,
+        "rmse": 1.9127931679579513,
+        "mae": 1.5948860629612542,
+        "mape": 10.201365524894328,
+        "r2": 0.8616588465824931,
         "set_name": "test",
         "n_samples": 20
     },
@@ -28,66 +28,64 @@
         "capacity": "1300",
         "feature_columns": [
             "Jumlah_Anggota_Keluarga",
-            "Status_Subsidi_Listrik",
             "Nominal_Token_Terakhir_Rp",
             "Frekuensi_Isi_Token_Per_Bulan",
             "Kulkas_Jumlah",
             "Kulkas_Kategori",
-            "Kulkas_EstimasiWattPerUnit",
-            "Kulkas_EstimasiJamPerHari",
             "Kulkas_Energi_kWhPerHari",
             "TV_Jumlah",
             "TV_Kategori",
-            "TV_EstimasiWattPerUnit",
-            "TV_EstimasiJamPerHari",
             "TV_Energi_kWhPerHari",
             "AC_Jumlah",
             "AC_PK_Kategori",
             "AC_Kategori",
-            "AC_EstimasiWattPerUnit",
-            "AC_EstimasiJamPerHari",
             "AC_Energi_kWhPerHari",
             "Kipas_Jumlah",
             "Kipas_Kategori",
-            "Kipas_EstimasiWattPerUnit",
-            "Kipas_EstimasiJamPerHari",
             "Kipas_Energi_kWhPerHari",
             "RiceCooker_Jumlah",
             "RiceCooker_Kategori",
-            "RiceCooker_EstimasiWattPerUnit",
-            "RiceCooker_EstimasiJamPerHari",
             "RiceCooker_Energi_kWhPerHari",
             "MesinCuci_Jumlah",
             "MesinCuci_Kategori",
-            "MesinCuci_EstimasiWattPerUnit",
-            "MesinCuci_EstimasiFrekuensiPerMinggu",
-            "MesinCuci_EstimasiDurasiSekaliPakaiJam",
             "MesinCuci_Energi_kWhPerHari",
             "Durasi_Dari_Frekuensi",
-            "Rasio_Fisika_vs_Frekuensi"
+            "Rasio_Fisika_vs_Frekuensi",
+            "Alat_Lain_1_Jenis",
+            "Alat_Lain_1_Jumlah",
+            "Alat_Lain_1_Kategori",
+            "Alat_Lain_1_Energi_kWhPerHari",
+            "Alat_Lain_2_Jenis",
+            "Alat_Lain_2_Jumlah",
+            "Alat_Lain_2_Kategori",
+            "Alat_Lain_2_Energi_kWhPerHari",
+            "Alat_Lain_3_Jenis",
+            "Alat_Lain_3_Jumlah",
+            "Alat_Lain_3_Kategori",
+            "Alat_Lain_3_Energi_kWhPerHari"
         ],
         "target_col": "Token_Habis_Dalam_Hari",
         "use_log_transform": true,
-        "epochs_trained": 215,
-        "best_epoch": 155,
-        "best_val_loss": 0.006879563047671361,
+        "epochs_trained": 502,
+        "best_epoch": 442,
+        "best_val_loss": 0.0038898079076383337,
         "k_folds": 5,
         "cv_summary": {
             "mae": {
-                "mean": 2.3294984084374746,
-                "std": 0.5194604986764929
+                "mean": 2.618861461851739,
+                "std": 0.7872512231909583
             },
             "rmse": {
-                "mean": 3.0720820849702113,
-                "std": 0.8058986177614517
+                "mean": 3.9541551233101244,
+                "std": 1.710508319255591
             },
             "mape": {
-                "mean": 17.01127139527213,
-                "std": 3.534438681975139
+                "mean": 19.92505084024143,
+                "std": 7.2573223391830854
             },
             "r2": {
-                "mean": 0.7213977651358624,
-                "std": 0.11120067424252998
+                "mean": 0.5134785900052703,
+                "std": 0.3611966696849538
             }
         },
         "cv_folds": [
@@ -95,56 +93,56 @@
                 "fold": 1,
                 "train_samples": 80,
                 "validation_samples": 21,
-                "best_epoch": 401,
-                "best_val_loss": 0.019497871185792777,
-                "mae": 2.857460407139695,
-                "rmse": 3.7783140153177848,
-                "mape": 21.805942101451738,
-                "r2": 0.6558672627118569
+                "best_epoch": 53,
+                "best_val_loss": 0.028658140104642817,
+                "mae": 3.542627966771692,
+                "rmse": 6.41552794179454,
+                "mape": 24.20414857783236,
+                "r2": 0.007810350759514639
             },
             {
                 "fold": 2,
                 "train_samples": 81,
                 "validation_samples": 20,
-                "best_epoch": 266,
-                "best_val_loss": 0.019016199410741702,
-                "mae": 2.8268164787634324,
-                "rmse": 3.974710103059745,
-                "mape": 19.733286446644016,
-                "r2": 0.6074707866767041
+                "best_epoch": 611,
+                "best_val_loss": 0.023876180648977514,
+                "mae": 2.3422467469018384,
+                "rmse": 3.734885050064571,
+                "mape": 16.279390647371354,
+                "r2": 0.6534103844651993
             },
             {
                 "fold": 3,
                 "train_samples": 81,
                 "validation_samples": 20,
-                "best_epoch": 488,
-                "best_val_loss": 0.009143212061052135,
-                "mae": 2.2999267493393574,
-                "rmse": 2.790960532175123,
-                "mape": 14.703780607614119,
-                "r2": 0.7054745972524656
+                "best_epoch": 442,
+                "best_val_loss": 0.0038898079076383337,
+                "mae": 1.5948860629612542,
+                "rmse": 1.9127931679579513,
+                "mape": 10.201365524894328,
+                "r2": 0.8616588465824931
             },
             {
                 "fold": 4,
                 "train_samples": 81,
                 "validation_samples": 20,
-                "best_epoch": 155,
-                "best_val_loss": 0.006879563047671361,
-                "mae": 1.6632761516187677,
-                "rmse": 2.005773140802231,
-                "mape": 13.824254725515898,
-                "r2": 0.899239229272527
+                "best_epoch": 363,
+                "best_val_loss": 0.013464499334061566,
+                "mae": 2.3437681078342054,
+                "rmse": 3.01425740324451,
+                "mape": 19.822216245108233,
+                "r2": 0.7724438745699748
             },
             {
                 "fold": 5,
                 "train_samples": 81,
                 "validation_samples": 20,
-                "best_epoch": 397,
-                "best_val_loss": 0.009929825483475515,
-                "mae": 2.00001225532612,
-                "rmse": 2.81065263349617,
-                "mape": 14.989093095134873,
-                "r2": 0.7389369497657583
+                "best_epoch": 117,
+                "best_val_loss": 0.03164825114976945,
+                "mae": 3.2707784247897016,
+                "rmse": 4.693312053489049,
+                "mape": 29.118133206000863,
+                "r2": 0.2720694936491701
             }
         ]
     }
