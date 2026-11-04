@@ -25,7 +25,7 @@ def compute_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
         ('AC', 'daily_with_pk'),
         ('Kipas', 'daily'),
         ('RiceCooker', 'daily'),
-        ('MesinCuci', 'weekly')
+        ('MesinCuci', 'weekly'),
     ]
 
     for device, device_type in devices:
@@ -103,5 +103,5 @@ def compute_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
             df[jam_col] = jam if isinstance(jam, pd.Series) else pd.Series([jam] * len(df), index=df.index)
 
         df[kwh_col] = (wh_per_hari / 1000.0).round(6)
-        
+
     return df

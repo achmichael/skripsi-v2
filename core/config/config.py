@@ -119,8 +119,14 @@ ENERGY_COLS = [
     "Kipas_Energi_kWhPerHari", "RiceCooker_Energi_kWhPerHari", "MesinCuci_Energi_kWhPerHari"
 ]
 
+OTHER_DEVICES = [
+    "Alat_Lain_1",
+    "Alat_Lain_2",
+    "Alat_Lain_3"
+]
+
 FEATURES = (
-    PROFILE + TOKEN_BEHAVIOR + KULKAS + TV + AC + KIPAS + RICE_COOKER + MESIN_CUCI + FEATURE_EXTRACTION
+    PROFILE + TOKEN_BEHAVIOR + KULKAS + TV + AC + KIPAS + RICE_COOKER + MESIN_CUCI + FEATURE_EXTRACTION + OTHER_DEVICES
 )
 
 
@@ -180,12 +186,23 @@ OTHER_DEFAULT_WATT = {
     "Tidak diisi": 0,
 }
 
-OTHER_USAGE_TO_DAILY_HOURS = {
-    "Tidak diisi": 0.0,
-    "Jarang, 1-2 kali per minggu": 0.3,
-    "Sedang, 3-4 kali per minggu": 0.6,
-    "Sering, hampir setiap hari": 1.0,
-    "Sangat sering, setiap hari dan cukup lama": 3.0,
+OTHER_DEVICE_USAGE_DAILY_HOURS = {
+    "Tidak ada / tidak digunakan": 0.0,
+    "Jarang, kurang dari 2 jam per hari": 1.0,
+    "Sedang, sekitar 2-5 jam per hari": 3.5,
+    "Sering, sekitar 6-10 jam per hari": 8.0,
+    "Sangat sering, lebih dari 10 jam per hari": 12.0,
+}
+
+OTHER_DEVICE_WEEKLY_FREQ = {
+    "Jarang, 1-2 kali per minggu": 1.5,
+    "Sedang, 3-4 kali per minggu": 3.5,
+    "Sering, 5-6 kali per minggu": 5.5,
+    "Sangat sering, hampir setiap hari": 7.0
+}
+
+OTHER_DEVICE_SESSION_HOURS = {
+    "Setrika": 0.6,
 }
 
 DAILY_DEVICE_WATT = {
@@ -206,7 +223,7 @@ configs: dict[str, Any] = {
     "models_config": {
         "900": {
             **COMMON,
-            "dataset_path": "data/prabayar_900.csv",
+            "dataset_path": "dataset/prabayar_900.csv",
             "model_path": "results/prabayar_900/models/model_prabayar_900.json",
             "metrics_dir": "results/prabayar_900/metrics",
             "hidden_layers": [32, 8],
@@ -222,7 +239,7 @@ configs: dict[str, Any] = {
         },
         "1300": {
             **COMMON,
-            "dataset_path": "data/prabayar_1300.csv",
+            "dataset_path": "dataset/prabayar_1300.csv",
             "model_path": "results/prabayar_1300/models/model_prabayar_1300.json",
             "metrics_dir": "results/prabayar_1300/metrics",
             "hidden_layers": [16, 8],
@@ -237,7 +254,7 @@ configs: dict[str, Any] = {
         },
         "2200": {
             **COMMON,
-            "dataset_path": "data/prabayar_2200.csv",
+            "dataset_path": "dataset/prabayar_2200.csv",
             "model_path": "results/prabayar_2200/models/model_prabayar_2200.json",
             "metrics_dir": "results/prabayar_2200/metrics",
             "hidden_layers": [32, 8],

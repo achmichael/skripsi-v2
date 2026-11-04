@@ -4,6 +4,7 @@ from pandas.io.pytables import dropna_doc
 from locale import normalize
 import pandas as pd
 import numpy as np
+import re
 from core.models.model_900_va import Model900VA
 from core.models.model_1300_va import Model1300VA
 from core.models.model_2200_va import Model2200VA
@@ -14,7 +15,7 @@ from core.config.config import (
     KULKAS_WATT_BY_SIZE,
     WEEKLY_USAGE_FREQUENCY,
     OTHER_DEFAULT_WATT,
-    OTHER_USAGE_TO_DAILY_HOURS,
+    OTHER_DEVICE_USAGE_DAILY_HOURS,
     WEEKLY_DEVICE_WATT,
     WEEKLY_DEVICE_DURATION_HOURS, PBJT_DEFAULT,
     PBJT_CITY
@@ -289,7 +290,7 @@ def calculate_other_device(
     usage_category: str,
 ) -> Dict[str, Any]:
     watt = OTHER_DEFAULT_WATT.get(type, OTHER_DEFAULT_WATT["Lainnya"])
-    hour = OTHER_USAGE_TO_DAILY_HOURS.get(usage_category, 0.0)
+    hour = OTHER_DEVICE_USAGE_DAILY_HOURS.get(usage_category, 0.0)
 
     energy_wh = calculate_energy_wh(quantity, watt, hours_per_day=hour)
 
@@ -301,3 +302,18 @@ def calculate_other_device(
         "energy_wh_per_day": energy_wh,
         "energy_kwh_per_day": wh_to_kwh(energy_wh)
     }
+
+def norm(s: str) -> str:
+    if pd.isna(s):
+        return ""
+    return re.sub(r"\s+", " ", str(s).strip().lower())
+
+
+def to_float(series: pd.Series) -> pd.Series:
+    # handle decimal and missing value
+    return (
+        series.astype(str)
+        .str.replace(",", ".", regex=False)
+        .pipe(pd.to_numeric, errors="coerce")
+        .fillna(0.0)
+    )
