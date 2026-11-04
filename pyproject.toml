@@ -2,7 +2,7 @@
 name = "prediksi-token"
 version = "1.0.0"
 description = "Neural network model untuk prediksi durasi token listrik prabayar PLN"
-requires-python = ">=3.9"
+requires-python = ">=3.13"
 dependencies = [
     "fastapi",
     "uvicorn",
