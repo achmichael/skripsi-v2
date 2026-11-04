@@ -10,7 +10,7 @@ from utils.helper import create_model
 from training.trainer import Trainer
 from evaluations.evaluator import Evaluator
 from postprocessing.xai.xai import IntegratedGradients
-from visualization.plots import save_feature_importance_bar
+from visualization.plots import save_feature_importance_bar, save_fold_metrics_boxplot
 
 import json
 import numpy as np
@@ -74,6 +74,27 @@ def evaluate_model(result, capacity, verbose=True):
         history=result['history'],
         save_path=loss_curve_path
     )
+
+    # Save per-fold metric boxplot (one image per metric, all folds)
+    fold_metrics = [
+        ("mae", "MAE (hari)"),
+        ("rmse", "RMSE (hari)"),
+        ("mape", "MAPE (%)"),
+        ("r2", "R²"),
+    ]
+    for metric, label in fold_metrics:
+        save_fold_metrics_boxplot(
+            cv_folds=result['metadata']['cv_folds'],
+            save_path=os.path.join(
+                cfg['metrics_dir'],
+                f"fold_{metric}_boxplot_{capacity}va.png",
+            ),
+            model_type=f"{capacity} VA",
+            metric=metric,
+            metric_label=label,
+            title=f"Distribusi {label} per Fold — {capacity} VA",
+            xlabel="Kapasitas",
+        )
 
     return eval_results
 

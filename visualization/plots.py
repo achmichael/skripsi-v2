@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import json
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+import numpy as np
+
 
 def save_loss_curve(history: dict, save_path: str, model_type: str):
     train_loss = history.get("train_loss", [])
@@ -260,6 +264,103 @@ def save_feature_importance_bar(
     fig.savefig(save_path, dpi=150)
     plt.close(fig)
     print(f"Feature importance chart disimpan ke: {save_path}")
+
+
+def save_fold_metrics_boxplot(
+    cv_folds: dict | list,
+    save_path: str,
+    model_type: str = "",
+    metric: str = "precision",
+    metric_label: str = "Precision Macro (%)",
+    title: str | None = None,
+    xlabel: str = "Experimental Scenario",
+    scale: float = 1.0,          # mis. 100 jika nilai metrik masih 0-1 dan ingin tampil dalam %
+    figsize: tuple = (12, 6),
+    box_color: str = "#2F5F8F",
+    median_color: str = "#E8672A",
+    point_color: str = "#5B7DB1",
+    jitter: float = 0.04,
+    seed: int = 42,
+    legend_loc: str = "lower right",
+    dpi: int = 150,
+):
+    """
+    Boxplot sebaran nilai metrik per fold untuk beberapa skenario eksperimen.
+
+    cv_folds dapat berupa:
+      - dict  : {"A-E-I": [fold_dict atau angka, ...], "A-E-J": [...], ...}
+      - list  : list fold_dict / angka untuk satu skenario (ditampilkan sebagai satu kotak,
+                label sumbu-x diambil dari model_type)
+
+    Setiap fold_dict diambil nilainya lewat fold[metric].
+    """
+    rng = np.random.default_rng(seed)
+
+    # --- Normalisasi input menjadi {nama_skenario: array nilai} ---
+    if isinstance(cv_folds, list):
+        cv_folds = {(model_type.upper() or "Model"): cv_folds}
+
+    data = {}
+    for name, folds in cv_folds.items():
+        vals = [f[metric] if isinstance(f, dict) else f for f in folds]
+        vals = np.array(vals, dtype=float) * scale
+        vals = vals[np.isfinite(vals)]
+        if len(vals) > 0:
+            data[name] = vals
+
+    if not data:
+        print("Tidak ada data valid untuk digambar.")
+        return
+
+    names = list(data.keys())
+    values = [data[n] for n in names]
+    positions = np.arange(1, len(names) + 1)
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    bp = ax.boxplot(
+        values,
+        positions=positions,
+        widths=0.5,
+        patch_artist=True,
+        showfliers=False,
+        boxprops=dict(facecolor="white", edgecolor=box_color, linewidth=1.3),
+        whiskerprops=dict(color=box_color, linewidth=1.3),
+        capprops=dict(color=box_color, linewidth=1.3),
+        medianprops=dict(color=median_color, linewidth=2),
+    )
+
+    # Titik nilai tiap fold (dengan jitter horizontal kecil)
+    for pos, vals in zip(positions, values):
+        x = pos + rng.uniform(-jitter, jitter, size=len(vals))
+        ax.scatter(x, vals, color=point_color, s=28, alpha=0.9,
+                   edgecolor="none", zorder=3)
+
+    # Styling sumbu
+    ax.set_xticks(positions)
+    ax.set_xticklabels(names, fontsize=9)
+    ax.set_xlabel(xlabel, fontsize=11, fontweight="bold")
+    ax.set_ylabel(metric_label, fontsize=11, fontweight="bold")
+    ax.set_title(
+        title or f"{metric_label.split('(')[0].strip()} Distribution of Each Experimental Scenario",
+        fontsize=13, fontweight="bold", pad=14,
+    )
+    ax.grid(True, axis="y", alpha=0.25, linestyle="-")
+    ax.set_axisbelow(True)
+
+    # Legenda
+    handles = [
+        Patch(facecolor="white", edgecolor=box_color, label="IQR (Box)"),
+        Line2D([0], [0], color=median_color, lw=2, label="Median"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor=point_color,
+               markersize=7, label="Fold Value"),
+    ]
+    ax.legend(handles=handles, loc=legend_loc, fontsize=8, frameon=True) # type: ignore
+
+    fig.tight_layout()
+    fig.savefig(save_path, dpi=dpi)
+    plt.close(fig)
+    print(f"Boxplot metrik per fold disimpan ke: {save_path}")
 
 
 def save_metrics_json(metrics: dict, save_path: str):
