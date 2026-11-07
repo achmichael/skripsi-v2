@@ -1,218 +1,218 @@
 [
   {
     "feature": "Frekuensi_Isi_Token_Per_Bulan",
-    "mean_absolute_ig": 0.06746985194758773,
-    "mean_signed_ig": 0.019207206966677198,
-    "relative_importance_pct": 11.786261249706385
+    "mean_absolute_ig": 0.12056461918530456,
+    "mean_signed_ig": 0.0006369307239113539,
+    "relative_importance_pct": 13.19302056608941
   },
   {
     "feature": "Durasi_Dari_Frekuensi",
-    "mean_absolute_ig": 0.04815350456635646,
-    "mean_signed_ig": 0.014500279662130463,
-    "relative_importance_pct": 8.411902035132574
-  },
-  {
-    "feature": "Nominal_Token_Terakhir_Rp",
-    "mean_absolute_ig": 0.0404958444987177,
-    "mean_signed_ig": 0.012139614976042958,
-    "relative_importance_pct": 7.074190753525683
+    "mean_absolute_ig": 0.07746147675932162,
+    "mean_signed_ig": 0.016243006801064653,
+    "relative_importance_pct": 8.476374436140974
   },
   {
     "feature": "AC_PK_Kategori",
-    "mean_absolute_ig": 0.03844535705054645,
-    "mean_signed_ig": 0.018042130131478297,
-    "relative_importance_pct": 6.71599253527312
-  },
-  {
-    "feature": "RiceCooker_Jumlah",
-    "mean_absolute_ig": 0.026670890263606657,
-    "mean_signed_ig": 0.016996221871790358,
-    "relative_importance_pct": 4.659119167080928
-  },
-  {
-    "feature": "Alat_Lain_3_Jumlah",
-    "mean_absolute_ig": 0.02602259666024558,
-    "mean_signed_ig": 0.0076423534896227704,
-    "relative_importance_pct": 4.545869210912907
-  },
-  {
-    "feature": "Rasio_Fisika_vs_Frekuensi",
-    "mean_absolute_ig": 0.023430379172113006,
-    "mean_signed_ig": 0.001295332209037938,
-    "relative_importance_pct": 4.093036550854276
-  },
-  {
-    "feature": "RiceCooker_Kategori",
-    "mean_absolute_ig": 0.021718023937398172,
-    "mean_signed_ig": -0.009930844771111452,
-    "relative_importance_pct": 3.7939064124877437
-  },
-  {
-    "feature": "MesinCuci_Kategori",
-    "mean_absolute_ig": 0.019691551739435292,
-    "mean_signed_ig": -0.008646356493195544,
-    "relative_importance_pct": 3.439903401498312
-  },
-  {
-    "feature": "AC_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.016455410899235003,
-    "mean_signed_ig": -0.006713236335381963,
-    "relative_importance_pct": 2.8745842214136337
-  },
-  {
-    "feature": "TV_Kategori",
-    "mean_absolute_ig": 0.01644724663995071,
-    "mean_signed_ig": -0.005591244936305529,
-    "relative_importance_pct": 2.8731580126691743
-  },
-  {
-    "feature": "TV_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.015250307061655966,
-    "mean_signed_ig": 0.012133692809223877,
-    "relative_importance_pct": 2.664065474851628
-  },
-  {
-    "feature": "TV_Jumlah",
-    "mean_absolute_ig": 0.015090697073132191,
-    "mean_signed_ig": 0.008845069043302699,
-    "relative_importance_pct": 2.6361833175843317
-  },
-  {
-    "feature": "Alat_Lain_2_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.015080319966950518,
-    "mean_signed_ig": -0.002725994294305847,
-    "relative_importance_pct": 2.6343705481629884
-  },
-  {
-    "feature": "MesinCuci_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.01482327334320932,
-    "mean_signed_ig": -0.0010348299242394711,
-    "relative_importance_pct": 2.589467253234726
-  },
-  {
-    "feature": "Kipas_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.013781294033855909,
-    "mean_signed_ig": 0.007843250416709805,
-    "relative_importance_pct": 2.407444616422537
-  },
-  {
-    "feature": "Alat_Lain_2_Jumlah",
-    "mean_absolute_ig": 0.01198085515930289,
-    "mean_signed_ig": 0.00301194109052797,
-    "relative_importance_pct": 2.092927208616547
-  },
-  {
-    "feature": "Kulkas_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.011919712237146236,
-    "mean_signed_ig": 0.005746342136618997,
-    "relative_importance_pct": 2.082246194307095
-  },
-  {
-    "feature": "RiceCooker_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.011383132360697299,
-    "mean_signed_ig": 0.010177708193973772,
-    "relative_importance_pct": 1.9885114309630876
-  },
-  {
-    "feature": "Alat_Lain_1_Kategori",
-    "mean_absolute_ig": 0.011331605662543608,
-    "mean_signed_ig": -0.011331605662543608,
-    "relative_importance_pct": 1.9795102680993253
-  },
-  {
-    "feature": "Kulkas_Jumlah",
-    "mean_absolute_ig": 0.011322654804816862,
-    "mean_signed_ig": 0.007895969001617825,
-    "relative_importance_pct": 1.9779466490230848
-  },
-  {
-    "feature": "AC_Kategori",
-    "mean_absolute_ig": 0.01001584211348823,
-    "mean_signed_ig": -0.0031025561339383424,
-    "relative_importance_pct": 1.749660453932629
-  },
-  {
-    "feature": "Kulkas_Kategori",
-    "mean_absolute_ig": 0.0099974105744001,
-    "mean_signed_ig": -0.0014246871431445763,
-    "relative_importance_pct": 1.7464406612599606
-  },
-  {
-    "feature": "Jumlah_Anggota_Keluarga",
-    "mean_absolute_ig": 0.009923260863367332,
-    "mean_signed_ig": -0.0019100573605003261,
-    "relative_importance_pct": 1.7334875000984191
-  },
-  {
-    "feature": "Alat_Lain_1_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.009463271985555221,
-    "mean_signed_ig": -0.0030705186824712943,
-    "relative_importance_pct": 1.6531323647401202
-  },
-  {
-    "feature": "Kipas_Jumlah",
-    "mean_absolute_ig": 0.008806603518394475,
-    "mean_signed_ig": 0.0013591119181188174,
-    "relative_importance_pct": 1.538419409472141
-  },
-  {
-    "feature": "Kipas_Kategori",
-    "mean_absolute_ig": 0.008397850858121721,
-    "mean_signed_ig": 0.0036917733644613398,
-    "relative_importance_pct": 1.4670146931222425
+    "mean_absolute_ig": 0.066577542790393,
+    "mean_signed_ig": -0.004039313474819029,
+    "relative_importance_pct": 7.285378556401683
   },
   {
     "feature": "AC_Jumlah",
-    "mean_absolute_ig": 0.008121274382716814,
-    "mean_signed_ig": -0.0030853149724950862,
-    "relative_importance_pct": 1.4186997420656207
+    "mean_absolute_ig": 0.06489199755091868,
+    "mean_signed_ig": -0.003331641169975108,
+    "relative_importance_pct": 7.100934453648117
   },
   {
-    "feature": "Alat_Lain_2_Kategori",
-    "mean_absolute_ig": 0.007956707895823024,
-    "mean_signed_ig": 0.005226215110258056,
-    "relative_importance_pct": 1.3899517375645387
+    "feature": "Alat_Lain_2_Jumlah",
+    "mean_absolute_ig": 0.06270634972140213,
+    "mean_signed_ig": 0.007768520661280955,
+    "relative_importance_pct": 6.861765641438613
   },
   {
-    "feature": "Alat_Lain_1_Jenis",
-    "mean_absolute_ig": 0.0049579821417088206,
-    "mean_signed_ig": 0.0005688700507264958,
-    "relative_importance_pct": 0.8661064328250423
+    "feature": "TV_Kategori",
+    "mean_absolute_ig": 0.055407665139647566,
+    "mean_signed_ig": 0.024026836222402446,
+    "relative_importance_pct": 6.063092726920549
+  },
+  {
+    "feature": "Alat_Lain_3_Jumlah",
+    "mean_absolute_ig": 0.03438760060035541,
+    "mean_signed_ig": -0.018402916057810196,
+    "relative_importance_pct": 3.762930825018153
+  },
+  {
+    "feature": "Kulkas_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.034236703028488094,
+    "mean_signed_ig": -0.01642587706973137,
+    "relative_importance_pct": 3.746418561449696
+  },
+  {
+    "feature": "RiceCooker_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.029098815099309443,
+    "mean_signed_ig": 0.008195714515300021,
+    "relative_importance_pct": 3.1841950702301536
   },
   {
     "feature": "Alat_Lain_1_Jumlah",
-    "mean_absolute_ig": 0.004116045181425776,
-    "mean_signed_ig": 0.0016108853425346164,
-    "relative_importance_pct": 0.7190290540664778
+    "mean_absolute_ig": 0.0256913041027279,
+    "mean_signed_ig": 0.00589235116999993,
+    "relative_importance_pct": 2.8113214779536255
   },
   {
-    "feature": "Alat_Lain_2_Jenis",
-    "mean_absolute_ig": 0.003899560805827057,
-    "mean_signed_ig": -0.0017082665204136208,
-    "relative_importance_pct": 0.6812115498978283
+    "feature": "Alat_Lain_2_Kategori",
+    "mean_absolute_ig": 0.024502496467462564,
+    "mean_signed_ig": 0.011738179469509436,
+    "relative_importance_pct": 2.681233864463354
   },
   {
-    "feature": "Alat_Lain_3_Energi_kWhPerHari",
-    "mean_absolute_ig": 0.003830738840145763,
-    "mean_signed_ig": 0.00202539269212245,
-    "relative_importance_pct": 0.6691890888456211
+    "feature": "Kulkas_Jumlah",
+    "mean_absolute_ig": 0.02427835656492458,
+    "mean_signed_ig": 0.006542816287028634,
+    "relative_importance_pct": 2.6567069148172062
+  },
+  {
+    "feature": "Alat_Lain_1_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.02424259769771881,
+    "mean_signed_ig": 0.0033556251674260558,
+    "relative_importance_pct": 2.6527939304470514
   },
   {
     "feature": "Alat_Lain_3_Jenis",
-    "mean_absolute_ig": 0.0025974012749141297,
-    "mean_signed_ig": -0.00038939455114623856,
-    "relative_importance_pct": 0.45373821214606813
+    "mean_absolute_ig": 0.024240755941887494,
+    "mean_signed_ig": -0.006225432018734278,
+    "relative_importance_pct": 2.65259239269307
+  },
+  {
+    "feature": "Alat_Lain_1_Jenis",
+    "mean_absolute_ig": 0.021422510400181335,
+    "mean_signed_ig": -0.002007557513359845,
+    "relative_importance_pct": 2.3442003317114586
+  },
+  {
+    "feature": "Rasio_Fisika_vs_Frekuensi",
+    "mean_absolute_ig": 0.02032895759318315,
+    "mean_signed_ig": -0.0029503375258905827,
+    "relative_importance_pct": 2.2245361651398583
+  },
+  {
+    "feature": "MesinCuci_Kategori",
+    "mean_absolute_ig": 0.018474501445887803,
+    "mean_signed_ig": -0.0014155057456341602,
+    "relative_importance_pct": 2.0216086541046763
+  },
+  {
+    "feature": "Alat_Lain_3_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.016003439748862876,
+    "mean_signed_ig": -0.0001563152948915668,
+    "relative_importance_pct": 1.751207868126004
+  },
+  {
+    "feature": "Kipas_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.015833199882942385,
+    "mean_signed_ig": 0.000610805548294321,
+    "relative_importance_pct": 1.732579035990721
+  },
+  {
+    "feature": "TV_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.015104123432198763,
+    "mean_signed_ig": -0.005615038264380178,
+    "relative_importance_pct": 1.6527984115097663
+  },
+  {
+    "feature": "TV_Jumlah",
+    "mean_absolute_ig": 0.014890528379889889,
+    "mean_signed_ig": 0.001781038185092588,
+    "relative_importance_pct": 1.62942535283826
+  },
+  {
+    "feature": "AC_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.014146385988508231,
+    "mean_signed_ig": 0.0034757384700949993,
+    "relative_importance_pct": 1.5479961081731404
+  },
+  {
+    "feature": "MesinCuci_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.013161678547607128,
+    "mean_signed_ig": 0.0040052516897172786,
+    "relative_importance_pct": 1.4402425598504578
+  },
+  {
+    "feature": "Kipas_Kategori",
+    "mean_absolute_ig": 0.012512766061571123,
+    "mean_signed_ig": -0.00127089864187091,
+    "relative_importance_pct": 1.3692340348643088
+  },
+  {
+    "feature": "Kipas_Jumlah",
+    "mean_absolute_ig": 0.011246288536206827,
+    "mean_signed_ig": 0.0029851942414560587,
+    "relative_importance_pct": 1.2306472408983244
+  },
+  {
+    "feature": "Alat_Lain_2_Energi_kWhPerHari",
+    "mean_absolute_ig": 0.011134702683536625,
+    "mean_signed_ig": 0.0036061954940846976,
+    "relative_importance_pct": 1.2184367395164892
+  },
+  {
+    "feature": "Kulkas_Kategori",
+    "mean_absolute_ig": 0.00977444337446948,
+    "mean_signed_ig": -0.0038400454171804515,
+    "relative_importance_pct": 1.069587689430286
+  },
+  {
+    "feature": "RiceCooker_Kategori",
+    "mean_absolute_ig": 0.008989187696382437,
+    "mean_signed_ig": -0.0007300989275112635,
+    "relative_importance_pct": 0.9836595425108489
+  },
+  {
+    "feature": "RiceCooker_Jumlah",
+    "mean_absolute_ig": 0.00866926398140406,
+    "mean_signed_ig": 0.0018360271239976275,
+    "relative_importance_pct": 0.9486512608125318
+  },
+  {
+    "feature": "Jumlah_Anggota_Keluarga",
+    "mean_absolute_ig": 0.008079430391247634,
+    "mean_signed_ig": 0.0044288875946359284,
+    "relative_importance_pct": 0.8841075601971479
+  },
+  {
+    "feature": "AC_Kategori",
+    "mean_absolute_ig": 0.006542929806402639,
+    "mean_signed_ig": 0.00010677196950782466,
+    "relative_importance_pct": 0.7159729618991819
+  },
+  {
+    "feature": "Alat_Lain_1_Kategori",
+    "mean_absolute_ig": 0.006517388000810023,
+    "mean_signed_ig": -0.002834831977611421,
+    "relative_importance_pct": 0.7131779995897125
+  },
+  {
+    "feature": "Alat_Lain_2_Jenis",
+    "mean_absolute_ig": 0.006053429048837785,
+    "mean_signed_ig": 0.0005166112741859391,
+    "relative_importance_pct": 0.6624083788124663
+  },
+  {
+    "feature": "Nominal_Token_Terakhir_Rp",
+    "mean_absolute_ig": 0.005279787112533069,
+    "mean_signed_ig": -0.0016228673000246517,
+    "relative_importance_pct": 0.5777510884280462
   },
   {
     "feature": "MesinCuci_Jumlah",
-    "mean_absolute_ig": 0.0020242745127231647,
-    "mean_signed_ig": -0.0008123763697853384,
-    "relative_importance_pct": 0.3536190988919212
+    "mean_absolute_ig": 0.0009935546011697186,
+    "mean_signed_ig": -0.0009849787228253996,
+    "relative_importance_pct": 0.10872166623458777
   },
   {
     "feature": "Alat_Lain_3_Kategori",
-    "mean_absolute_ig": 0.001372170409976925,
-    "mean_signed_ig": 0.001372170409976925,
-    "relative_importance_pct": 0.23970348925129048
+    "mean_absolute_ig": 0.0004047442142900315,
+    "mean_signed_ig": -0.00031337239003477457,
+    "relative_importance_pct": 0.04428993165007189
   }
 ]

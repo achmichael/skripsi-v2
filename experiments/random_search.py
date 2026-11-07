@@ -27,8 +27,6 @@ SEARCH_SPACE = {
     # Optimasi
     "learning_rate": [1e-4, 3e-4, 5e-4, 1e-3, 3e-3, 5e-3, 1e-2, 3e-2, 5e-2],
     "batch_size": [16, 32, 64, 128, 256],
-    # Regularisasi
-    "l2": [0.0, 1e-7, 1e-6, 1e-5, 1e-4, 5e-4, 1e-3, 1e-2],
     # Early stopping
     "patience": [5, 10, 15, 20, 30, 50],
     # Gradient clipping
@@ -520,7 +518,6 @@ def main():
     def trainer_factory(
         learning_rate,
         batch_size,
-        l2_lambda,
         patience,
         clip_value,
     ):
@@ -529,7 +526,6 @@ def main():
         cfg_train = {
             "learning_rate": learning_rate,
             "batch_size": batch_size,
-            "l2_lambda": l2_lambda,
             "patience": patience,
             "min_delta": cfg["min_delta"],
             "clip_value": clip_value,
@@ -570,7 +566,6 @@ def main():
         n_trials=args.trials,
         seed=args.seed,
         enforce_funnel=True,
-        trainer_param_map={"l2": "l2_lambda"},
         verbose=True,
         k_folds=args.folds,
         feature_columns=feature_columns,
