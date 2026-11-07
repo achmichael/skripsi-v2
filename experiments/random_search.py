@@ -2,7 +2,9 @@
 Random Search Hyperparameter Tuning
 
 Module ini melakukan hyperparameter tuning menggunakan random search.
-Perankingan berdasarkan MAE pada data skala asli (setelah inverse transform).
+Setiap kombinasi dievaluasi dengan k-fold cross-validation yang sama seperti
+pipeline utama (train.py): scaling fit per fold, model baru per fold, dan
+metrik dihitung pada skala target asli.
 """
 
 import csv
@@ -114,160 +116,15 @@ class HyperparameterSampler:
         return tuple(params.get(k) for k in keys)
 
 
-class ModelEvaluator:
-    """
-    Evaluator untuk training dan evaluasi model dengan hyperparameter tertentu.
-    """
-
-    def __init__(
-        self,
-        model_factory: Callable,
-        trainer_factory: Callable,
-        input_size: int,
-        trainer_param_map: Optional[Dict[str, str]] = None
-    ):
-        self.model_factory = model_factory
-        self.trainer_factory = trainer_factory
-        self.input_size = input_size
-        self.trainer_param_map = trainer_param_map or {}
-
-    def evaluate(
-        self,
-        params: Dict[str, Any],
-        X_train: np.ndarray,
-        y_train: np.ndarray,
-        X_val: np.ndarray,
-        y_val: np.ndarray
-    ) -> Tuple[Any, Dict[str, Any], str]:
-        """
-        Train dan evaluasi model dengan hyperparameter tertentu.
-
-        Returns:
-            (model, metrics_dict, status_string)
-        """
-        try:
-            # Build model
-            hidden_layers = self._extract_hidden_layers(params)
-            model = self.model_factory(
-                input_size=self.input_size,
-                hidden_layers=hidden_layers
-            )
-
-            # Build trainer
-            trainer_params = self._extract_trainer_params(params)
-            trainer = self.trainer_factory(**trainer_params)
-
-            # Train
-            model, history, best_epoch = trainer.fit(
-                model=model,
-                X_train=X_train,
-                y_train=y_train,
-                X_val=X_val,
-                y_val=y_val
-            )
-
-            # Get predictions
-            y_pred = model.forward(X_val)
-
-            metrics = {
-                "model": model,
-                "y_pred": y_pred,
-                "best_epoch": best_epoch,
-                "history": history
-            }
-
-            return model, metrics, "ok"
-
-        except Exception as exc:
-            return None, {}, f"failed: {type(exc).__name__}: {exc}"
-
-    def _extract_hidden_layers(self, params: Dict[str, Any]) -> List[int]:
-        """Extract hidden layer sizes dari params."""
-        n_layers = params.get("n_hidden_layers", 2)
-        hidden_layers = [params["hidden_1"]]
-        if n_layers == 2:
-            hidden_layers.append(params["hidden_2"])
-        return hidden_layers
-
-    def _extract_trainer_params(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract trainer parameters dari params dengan mapping."""
-        arch_keys = ("n_hidden_layers", "hidden_1", "hidden_2")
-        trainer_params = {}
-
-        for key, value in params.items():
-            if key in arch_keys:
-                continue
-            mapped_key = self.trainer_param_map.get(key, key)
-            trainer_params[mapped_key] = value
-
-        return trainer_params
-
-
-class MetricCalculator:
-    """
-    Calculator untuk metrik evaluasi dengan support inverse transform.
-    """
-
-    def __init__(
-        self,
-        y_scaler: Any = None,
-        inverse_fn: Optional[Callable] = None
-    ):
-        self.y_scaler = y_scaler
-        self.inverse_fn = inverse_fn
-
-    def calculate_mae(
-        self,
-        y_true: np.ndarray,
-        y_pred: np.ndarray,
-        use_original_scale: bool = True
-    ) -> float:
-        """
-        Hitung MAE. Jika use_original_scale=True, inverse transform dulu.
-
-        Args:
-            y_true: Ground truth values
-            y_pred: Predicted values
-            use_original_scale: Jika True, inverse transform ke skala asli
-
-        Returns:
-            MAE score
-        """
-        if use_original_scale:
-            y_true = self._inverse_transform(y_true)
-            y_pred = self._inverse_transform(y_pred)
-
-        y_true = np.asarray(y_true).reshape(-1)
-        y_pred = np.asarray(y_pred).reshape(-1)
-
-        if y_true.shape != y_pred.shape:
-            raise ValueError(f"Shape mismatch: {y_true.shape} vs {y_pred.shape}")
-
-        mae = float(np.mean(np.abs(y_true - y_pred)))
-
-        if not math.isfinite(mae):
-            return float("inf")
-
-        return mae
-
-    def _inverse_transform(self, y_scaled: np.ndarray) -> np.ndarray:
-        """Inverse transform dari skala normalisasi ke skala asli."""
-        if self.inverse_fn is None or self.y_scaler is None:
-            return y_scaled
-
-        flat = np.asarray(y_scaled).reshape(-1).tolist()
-        return np.array(
-            self.inverse_fn(flat, self.y_scaler),
-            dtype=np.float64
-        ).reshape(y_scaled.shape if hasattr(y_scaled, "shape") else (-1,))
-
-
 class RandomSearch:
     """
     Random Search untuk hyperparameter tuning neural network.
 
-    Perankingan berdasarkan MAE pada data skala asli (inverse transformed).
+    Perankingan berdasarkan rata-rata MAE k-fold cross-validation pada skala
+    target asli (inverse transformed).
     """
+
+    ARCH_KEYS = ("n_hidden_layers", "hidden_1", "hidden_2")
 
     def __init__(
         self,
@@ -279,9 +136,11 @@ class RandomSearch:
         seed: int = 42,
         enforce_funnel: bool = True,
         trainer_param_map: Optional[Dict[str, str]] = None,
-        y_scaler: Any = None,
-        inverse_fn: Optional[Callable] = None,
-        verbose: bool = True
+        verbose: bool = True,
+        k_folds: int = 5,
+        feature_columns: Optional[List[str]] = None,
+        encoding_cols: Optional[List[str]] = None,
+        use_log: bool = False
     ):
         """
         Args:
@@ -293,32 +152,35 @@ class RandomSearch:
             seed: Random seed untuk reproducibility
             enforce_funnel: Jika True, enforce hidden_2 <= hidden_1
             trainer_param_map: Mapping hyperparameter name ke trainer param name
-            y_scaler: Scaler untuk inverse transform target
-            inverse_fn: Function untuk inverse transform
             verbose: Print progress
+            k_folds: Jumlah fold cross-validation
+            feature_columns: Nama fitur (untuk selective feature scaling)
+            encoding_cols: Kolom yang tidak ikut di-scale
+            use_log: Apakah target memakai log transform (sama seperti train.py)
         """
         self.search_space = search_space
         self.n_trials = n_trials
         self.verbose = verbose
+        self.k_folds = k_folds
+        self.seed = seed
+        self.feature_columns = list(
+            range(input_size) if feature_columns is None else feature_columns
+        )
+        self.encoding_cols = (
+            set() if encoding_cols is None else set(encoding_cols)
+        )
+        self.use_log = use_log
 
-        # Components
         self.sampler = HyperparameterSampler(
             search_space=search_space,
             enforce_funnel=enforce_funnel,
             seed=seed
         )
 
-        self.evaluator = ModelEvaluator(
-            model_factory=model_factory,
-            trainer_factory=trainer_factory,
-            input_size=input_size,
-            trainer_param_map=trainer_param_map
-        )
-
-        self.metric_calculator = MetricCalculator(
-            y_scaler=y_scaler,
-            inverse_fn=inverse_fn
-        )
+        self.trainer_param_map = trainer_param_map or {}
+        self.model_factory = model_factory
+        self.trainer_factory = trainer_factory
+        self.input_size = input_size
 
         # Results
         self.results: List[Dict[str, Any]] = []
@@ -326,21 +188,13 @@ class RandomSearch:
         self.best_score: float = float("inf")
         self.best_model: Any = None
 
-    def fit(
-        self,
-        X_train: np.ndarray,
-        y_train: np.ndarray,
-        X_val: np.ndarray,
-        y_val: np.ndarray
-    ) -> "RandomSearch":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> "RandomSearch":
         """
-        Jalankan random search.
+        Jalankan random search dengan k-fold cross-validation.
 
         Args:
-            X_train: Training features
-            y_train: Training target
-            X_val: Validation features
-            y_val: Validation target
+            X: Fitur mentah (scaling dilakukan per fold)
+            y: Target mentah
 
         Returns:
             self
@@ -352,11 +206,8 @@ class RandomSearch:
         n_total = len(combinations)
 
         if self.verbose:
-            print(f"Random Search | trials={n_total}")
+            print(f"Random Search | trials={n_total} | {self.k_folds}-fold CV")
             print("=" * 70)
-
-        # Pre-compute inverse transformed y_val (tetap untuk semua trial)
-        y_val_original = self.metric_calculator._inverse_transform(y_val)
 
         # Evaluate each combination
         for trial_idx, params in enumerate(combinations, start=1):
@@ -364,11 +215,8 @@ class RandomSearch:
                 trial_idx=trial_idx,
                 n_total=n_total,
                 params=params,
-                X_train=X_train,
-                y_train=y_train,
-                X_val=X_val,
-                y_val=y_val,
-                y_val_original=y_val_original
+                X=X,
+                y=y,
             )
 
             self.results.append(result)
@@ -391,48 +239,91 @@ class RandomSearch:
         trial_idx: int,
         n_total: int,
         params: Dict[str, Any],
-        X_train: np.ndarray,
-        y_train: np.ndarray,
-        X_val: np.ndarray,
-        y_val: np.ndarray,
-        y_val_original: np.ndarray
+        X: np.ndarray,
+        y: np.ndarray
     ) -> Dict[str, Any]:
-        """Evaluate satu trial."""
-        # Train model
-        model, metrics, status = self.evaluator.evaluate(
-            params=params,
-            X_train=X_train,
-            y_train=y_train,
-            X_val=X_val,
-            y_val=y_val
-        )
+        """Evaluate satu trial dengan k-fold cross-validation."""
+        from experiments.k_fold_cv import KFoldCrossValidation
 
-        # Calculate MAE on original scale
-        if status == "ok":
-            y_pred = metrics["y_pred"]
-            y_pred_original = self.metric_calculator._inverse_transform(y_pred)
-            mae = self.metric_calculator.calculate_mae(
-                y_val_original,
-                y_pred_original,
-                use_original_scale=False  # Already inverse transformed
+        hidden_layers = self._extract_hidden_layers(params)
+        trainer_params = self._extract_trainer_params(params)
+
+        try:
+            kfold = KFoldCrossValidation(
+                k=self.k_folds,
+                shuffle=True,
+                random_state=self.seed,
             )
-            best_epoch = metrics.get("best_epoch")
-        else:
-            mae = float("inf")
-            best_epoch = None
+            fold_results = kfold.evaluate(
+                X=X,
+                y=y,
+                model_factory=self.model_factory,
+                trainer_factory=self.trainer_factory,
+                model_params={
+                    "input_size": self.input_size,
+                    "hidden_layers": hidden_layers,
+                },
+                trainer_params=trainer_params,
+                feature_columns=self.feature_columns,
+                encoding_cols=self.encoding_cols,
+                use_log=self.use_log,
+                seed=self.seed,
+                verbose=False,
+            )
 
-        # Build result
-        hidden_layers = self.evaluator._extract_hidden_layers(params)
+            fold_scores = [float(row["mae"]) for row in fold_results]
+            fold_best_epochs = [int(row["best_epoch"]) for row in fold_results]
+
+            mae = float(np.mean(fold_scores))
+            mae_std = (
+                float(np.std(fold_scores, ddof=1))
+                if len(fold_scores) > 1
+                else 0.0
+            )
+            best_epoch = int(round(np.mean(fold_best_epochs)))
+            status = "ok"
+
+            if not math.isfinite(mae):
+                mae = float("inf")
+                status = "failed: MAE NaN/inf (training diverge)"
+        except Exception as exc:
+            fold_scores = []
+            mae = float("inf")
+            mae_std = float("nan")
+            best_epoch = None
+            status = f"failed: {type(exc).__name__}: {exc}"
 
         return {
             "trial": trial_idx,
             "params": deepcopy(params),
             "hidden_layers": hidden_layers,
             "mae": mae,
+            "mae_std": mae_std,
+            "fold_maes": fold_scores,
             "best_epoch": best_epoch,
             "status": status,
-            "model": model
+            "model": None,
         }
+
+    def _extract_hidden_layers(self, params: Dict[str, Any]) -> List[int]:
+        """Extract hidden layer sizes dari params."""
+        n_layers = params.get("n_hidden_layers", 2)
+        hidden_layers = [params["hidden_1"]]
+        if n_layers == 2:
+            hidden_layers.append(params["hidden_2"])
+        return hidden_layers
+
+    def _extract_trainer_params(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract trainer parameters dari params dengan mapping."""
+        trainer_params = {}
+
+        for key, value in params.items():
+            if key in self.ARCH_KEYS:
+                continue
+            mapped_key = self.trainer_param_map.get(key, key)
+            trainer_params[mapped_key] = value
+
+        return trainer_params
 
     def _update_best(self, result: Dict[str, Any]):
         """Update best result jika lebih baik."""
@@ -446,7 +337,7 @@ class RandomSearch:
         """Print hasil satu trial."""
         print(
             f"[{trial_idx}/{n_total}] "
-            f"MAE={result['mae']:.6f} | "
+            f"CV MAE={result['mae']:.6f} ± {result['mae_std']:.6f} | "
             f"layers={result['hidden_layers']} | "
             f"epoch={result['best_epoch']} | "
             f"{result['status']}"
@@ -470,7 +361,7 @@ class RandomSearch:
         Ringkasan statistik MAE berdasarkan jumlah hidden layer.
 
         Returns:
-            Dictionary: {n_layers: {n_trials, best_mae, mean_mae}}
+            Dictionary: {n_layers: {n_trials, best_mae, mean_mae, std_mae}}
         """
         summary = {}
 
@@ -510,7 +401,10 @@ class RandomSearch:
             writer = csv.writer(f)
 
             # Header
-            header = ["rank", "trial", "mae", "best_epoch", "status"] + param_keys
+            header = (
+                ["rank", "trial", "mae", "mae_std", "best_epoch", "status"]
+                + param_keys
+            )
             writer.writerow(header)
 
             # Rows
@@ -519,6 +413,7 @@ class RandomSearch:
                     rank,
                     result["trial"],
                     result["mae"],
+                    result["mae_std"],
                     result["best_epoch"],
                     result["status"]
                 ]
@@ -535,18 +430,12 @@ def main():
     # Add parent directory to path
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    from preprocessing.preprocess import preprocess, train_test_split
+    from core.config.config import configs
+    from preprocessing.preprocess import preprocess
     from feature_extraction.feature_extraction import extractor
-    from transformation.feature import fit_standard_scaler, transform_standard
-    from transformation.target import fit_minmax_scaler, transform_minmax
-    from transformation.inverse_transform import inverse_transform_target
     from core.models.mlp import MLP
     from core.losses.asymmetric_mse import AsymmetricMSE
-    from core.optimizers.adam import Adam
     from training.trainer import Trainer
-    from training.early_stopping import EarlyStopping
-    from training.gradient_clipping import clip_gradients
-    from core.regularizers.l2 import L2Regularizer
 
     # Parse arguments
     parser = argparse.ArgumentParser(
@@ -564,6 +453,12 @@ def main():
         type=int,
         default=150,
         help="Number of trials (default: 150)"
+    )
+    parser.add_argument(
+        "--folds",
+        type=int,
+        default=5,
+        help="Number of cross-validation folds (default: 5)"
     )
     parser.add_argument(
         "--output",
@@ -586,14 +481,17 @@ def main():
     print("=" * 70)
     print(f"Capacity: {args.capacity} VA")
     print(f"Trials: {args.trials}")
+    print(f"Cross-validation: {args.folds}-fold")
     print(f"Output: {args.output}")
     print(f"Seed: {args.seed}")
     print("=" * 70)
     print()
 
+    cfg = configs["models_config"][args.capacity]
+
     # Load and preprocess data
-    print("[1/4] Loading and preprocessing data...")
-    dataset_path = f"data/prabayar_{args.capacity}.csv"
+    print("[1/3] Loading and preprocessing data...")
+    dataset_path = cfg["dataset_path"]
     if not os.path.exists(dataset_path):
         print(f"Error: Dataset not found: {dataset_path}")
         sys.exit(1)
@@ -604,34 +502,11 @@ def main():
     print(f"   Features: {len(feature_columns)}")
     print(f"   Samples: {len(x_data)}")
 
-    # Split data
-    print("[2/4] Splitting data...")
-    x_train, y_train, x_test, y_test = train_test_split(x_data, y_data, 0.2, 42)
-
-    # Validation split from training data
-    val_size = int(len(x_train) * 0.15)
-    x_val = x_train[:val_size]
-    y_val = y_train[:val_size]
-    x_train = x_train[val_size:]
-    y_train = y_train[val_size:]
-
-    print(f"   Train: {len(x_train)}, Val: {len(x_val)}, Test: {len(x_test)}")
-
-    # Scale data
-    print("[3/4] Scaling data...")
-    x_scaler = fit_standard_scaler(x_train)
-    x_train_scaled = transform_standard(x_train, x_scaler)
-    x_val_scaled = transform_standard(x_val, x_scaler)
-
-    y_scaler = fit_minmax_scaler(y_train)
-    y_train_scaled = transform_minmax(y_train, y_scaler)
-    y_val_scaled = transform_minmax(y_val, y_scaler)
-
-    # Convert to numpy
-    X_train = np.array(x_train_scaled, dtype=np.float32)
-    y_train_np = np.array(y_train_scaled, dtype=np.float32).reshape(-1, 1)
-    X_val = np.array(x_val_scaled, dtype=np.float32)
-    y_val_np = np.array(y_val_scaled, dtype=np.float32).reshape(-1, 1)
+    # Data mentah; scaling dilakukan per fold di dalam cross-validation.
+    print("[2/3] Preparing raw data for cross-validation...")
+    X = np.array(x_data, dtype=np.float32)
+    y = np.array(y_data, dtype=np.float32).reshape(-1, 1)
+    encoding_cols = set(configs["preprocessing"]["no_scaling_cols"])
 
     input_size = len(feature_columns)
 
@@ -642,99 +517,49 @@ def main():
         return MLP(layer_sizes)
 
     # Define trainer factory
-    def trainer_factory(learning_rate, batch_size, l2, patience, clip_value):
+    def trainer_factory(
+        learning_rate,
+        batch_size,
+        l2_lambda,
+        patience,
+        clip_value,
+    ):
         """Create trainer dengan hyperparameter tertentu."""
+        # Hyperparameter yang tidak dituning mengikuti konfigurasi train.py.
+        cfg_train = {
+            "learning_rate": learning_rate,
+            "batch_size": batch_size,
+            "l2_lambda": l2_lambda,
+            "patience": patience,
+            "min_delta": cfg["min_delta"],
+            "clip_value": clip_value,
+        }
 
-        class SimpleTrainer:
-            """Trainer wrapper untuk grid/random search."""
-
-            def __init__(self):
-                self.lr = learning_rate
-                self.batch_size = batch_size
-                self.l2_lambda = l2
-                self.patience = patience
-                self.clip_value = clip_value
+        class CVTrainer:
+            """Trainer wrapper yang memakai logika Trainer._train_fold."""
 
             def fit(self, model, X_train, y_train, X_val, y_val):
-                """Train model dengan early stopping."""
-                loss_fn = AsymmetricMSE(beta=0.4, alpha=0.6)
-                optimizer = Adam(self.lr)
-                regularizer = L2Regularizer(lambda_=self.l2_lambda)
-                early_stopping = EarlyStopping(
-                    patience=self.patience,
-                    min_delta=1e-5,
-                    mode="min"
+                loss_fn = AsymmetricMSE(
+                    beta=cfg["asymmetric_beta"],
+                    alpha=cfg["asymmetric_alpha"],
                 )
-
-                history = {"train_loss": [], "val_loss": []}
-
-                for epoch in range(1, 1001):
-                    # Shuffle training data
-                    indices = np.random.permutation(len(X_train))
-                    X_shuffled = X_train[indices]
-                    y_shuffled = y_train[indices]
-
-                    # Mini-batch training
-                    epoch_losses = []
-                    num_batches = (len(X_train) + self.batch_size - 1) // self.batch_size
-
-                    for i in range(num_batches):
-                        start_idx = i * self.batch_size
-                        end_idx = min(start_idx + self.batch_size, len(X_train))
-                        x_batch = X_shuffled[start_idx:end_idx]
-                        y_batch = y_shuffled[start_idx:end_idx]
-
-                        # Forward pass
-                        y_pred = model.forward(x_batch)
-                        batch_loss = loss_fn.forward(y_pred, y_batch)
-
-                        # Backward pass
-                        grad_loss = loss_fn.backward(y_pred, y_batch)
-                        model.backward(grad_loss)
-
-                        # Apply regularization
-                        trainable_params = model.get_trainable_layers()
-                        regularizer.apply_to_gradients(trainable_params, y_batch)
-
-                        # Gradient clipping
-                        clip_gradients(model, self.clip_value)
-
-                        # Update weights
-                        optimizer.update(trainable_params)
-
-                        epoch_losses.append(batch_loss)
-
-                    # Calculate training loss
-                    train_loss = np.mean(epoch_losses)
-
-                    # Add L2 penalty to loss
-                    if self.l2_lambda > 0:
-                        weights_list = [
-                            layer.weights
-                            for layer in model.layers
-                            if hasattr(layer, 'weights') and layer.weights is not None
-                        ]
-                        l2_penalty = regularizer.compute_loss(weights_list, y_batch)
-                        train_loss += l2_penalty
-
-                    history["train_loss"].append(float(train_loss))
-
-                    # Calculate validation loss
-                    y_pred_val = model.forward(X_val)
-                    val_loss = loss_fn.forward(y_pred_val, y_val)
-                    history["val_loss"].append(float(val_loss))
-
-                    # Check early stopping
-                    should_stop = early_stopping.step(val_loss, epoch, model)
-                    if should_stop:
-                        break
-
+                history, early_stopping = Trainer._train_fold(
+                    model=model,
+                    loss=loss_fn,
+                    x_train_np=X_train,
+                    y_train_np=y_train,
+                    x_val_np=X_val,
+                    y_val_np=y_val,
+                    cfg=cfg_train,
+                    epochs=1000,
+                    verbose=False,
+                )
                 return model, history, early_stopping.best_epoch
 
-        return SimpleTrainer()
+        return CVTrainer()
 
     # Run random search
-    print("[4/4] Running random search...")
+    print(f"[3/3] Running random search ({args.folds}-fold CV)...")
     print()
 
     random_search = RandomSearch(
@@ -745,20 +570,22 @@ def main():
         n_trials=args.trials,
         seed=args.seed,
         enforce_funnel=True,
-        trainer_param_map={"l2": "l2"},
-        y_scaler=y_scaler,
-        inverse_fn=inverse_transform_target,
-        verbose=True
+        trainer_param_map={"l2": "l2_lambda"},
+        verbose=True,
+        k_folds=args.folds,
+        feature_columns=feature_columns,
+        encoding_cols=encoding_cols,
+        use_log=cfg["use_log_transform"],
     )
 
-    random_search.fit(X_train, y_train_np, X_val, y_val_np)
+    random_search.fit(X, y)
 
     # Print results
     print()
     print("=" * 70)
     print("RANDOM SEARCH RESULTS")
     print("=" * 70)
-    print(f"Best MAE: {random_search.best_score:.4f}")
+    print(f"Best CV MAE: {random_search.best_score:.4f}")
     print(f"Best params: {random_search.best_params}")
 
     # Summary by depth
@@ -782,9 +609,9 @@ def main():
     top_10 = random_search.get_results(top_k=10)
     for rank, result in enumerate(top_10, start=1):
         print(f"\nRank {rank}:")
-        print(f"   MAE: {result['mae']:.4f}")
+        print(f"   CV MAE: {result['mae']:.4f} ± {result['mae_std']:.4f}")
         print(f"   Hidden layers: {result['hidden_layers']}")
-        print(f"   Best epoch: {result['best_epoch']}")
+        print(f"   Best epoch (mean): {result['best_epoch']}")
         print(f"   Params: {result['params']}")
 
     # Save results

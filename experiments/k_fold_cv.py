@@ -107,6 +107,7 @@ class KFoldCrossValidation:
             inverse_fn=None,
             use_log=False,
             seed=None,
+            verbose=True,
         ):
             """
             Setiap fold membuat model dan Trainer baru.
@@ -131,6 +132,9 @@ class KFoldCrossValidation:
             seed:
                 Seed dasar. Seed fold = seed + fold_number, di-set sebelum
                 inisialisasi bobot model.
+
+            verbose:
+                Jika True, cetak metrik setiap fold.
             """
             from utils.helper import selective_feature_scaling
             from transformation.target import fit_minmax_scaler, transform_minmax
@@ -226,13 +230,14 @@ class KFoldCrossValidation:
 
                 self.fold_results.append(result)
 
-                print(
-                    f"Fold {fold_number}: "
-                    f"MAE={metrics['mae']:.4f} hari, "
-                    f"RMSE={metrics['rmse']:.4f} hari, "
-                    f"MAPE={metrics['mape']:.2f}%, "
-                    f"R2={metrics['r2']:.4f}"
-                )
+                if verbose:
+                    print(
+                        f"Fold {fold_number}: "
+                        f"MAE={metrics['mae']:.4f} hari, "
+                        f"RMSE={metrics['rmse']:.4f} hari, "
+                        f"MAPE={metrics['mape']:.2f}%, "
+                        f"R2={metrics['r2']:.4f}"
+                    )
 
             return self.fold_results
 
