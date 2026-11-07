@@ -326,8 +326,6 @@ if __name__ == "__main__":
     from core.optimizers.adam import Adam
     from core.config.config import configs
     from training.early_stopping import EarlyStopping
-    from training.gradient_clipping import clip_gradients
-    from core.regularizers.l2 import L2Regularizer
 
     parser = argparse.ArgumentParser(description="K-Fold Cross Validation")
     parser.add_argument("--capacity", type=str, default="900", choices=["900", "1300", "2200"],
@@ -386,10 +384,8 @@ if __name__ == "__main__":
     def trainer_factory(
             learning_rate,
             batch_size,
-            l2_lambda,
             patience,
             min_delta,
-            clip_value,
             asymmetric_alpha,
             asymmetric_beta,
         ):
@@ -397,10 +393,8 @@ if __name__ == "__main__":
             def __init__(self):
                 self.lr = learning_rate
                 self.batch_size = batch_size
-                self.l2_lambda = l2_lambda
                 self.patience = patience
                 self.min_delta = min_delta
-                self.clip_value = clip_value
                 self.asymmetric_alpha = asymmetric_alpha
                 self.asymmetric_beta = asymmetric_beta
 
@@ -410,7 +404,6 @@ if __name__ == "__main__":
                     beta=self.asymmetric_beta,
                 )
                 optimizer = Adam(self.lr)
-                regularizer = L2Regularizer(lambda_=self.l2_lambda)
                 early_stopping = EarlyStopping(
                     patience=self.patience,
                     min_delta=self.min_delta,
@@ -443,12 +436,7 @@ if __name__ == "__main__":
                         grad_loss = loss_fn.backward(y_pred, y_batch)
                         model.backward(grad_loss)
 
-                        # Regularization
                         trainable_params = model.get_trainable_layers()
-                        regularizer.apply_to_gradients(trainable_params, y_batch)
-
-                        # Gradient clipping
-                        clip_gradients(model, self.clip_value)
 
                         # Update
                         optimizer.update(trainable_params)
@@ -457,13 +445,6 @@ if __name__ == "__main__":
 
                     # Training loss
                     train_loss = np.mean(epoch_losses)
-
-                    # Add L2 penalty
-                    if self.l2_lambda > 0:
-                        weights_list = [layer.weights for layer in model.layers
-                                        if hasattr(layer, 'weights') and layer.weights is not None]
-                        l2_penalty = regularizer.compute_loss(weights_list, y_batch)
-                        train_loss += l2_penalty
 
                     history["train_loss"].append(float(train_loss))
 
@@ -490,10 +471,8 @@ if __name__ == "__main__":
     trainer_params = {
         "learning_rate": cfg["learning_rate"],
         "batch_size": cfg["batch_size"],
-        "l2_lambda": cfg["l2_lambda"],
         "patience": cfg["patience"],
         "min_delta": cfg["min_delta"],
-        "clip_value": cfg["clip_value"],
         "asymmetric_alpha": cfg["asymmetric_alpha"],
         "asymmetric_beta": cfg["asymmetric_beta"],
     }

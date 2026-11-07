@@ -13,7 +13,7 @@ import numpy as np
 # SEARCH SPACE
 # ---------------------------------------------------------------------------
 # Setiap hyperparameter punya banyak kandidat nilai agar pencarian beragam.
-# Learning rate, L2, dan clip value memakai skala logaritmik / bertingkat
+# Learning rate memakai skala logaritmik / bertingkat
 # karena pengaruhnya biasanya terlihat pada orde besaran, bukan selisih kecil.
 SEARCH_SPACE = {
     # Arsitektur: pencarian ikut menentukan 1 atau 2 hidden layer.
@@ -24,12 +24,8 @@ SEARCH_SPACE = {
     # Optimasi
     "learning_rate": [1e-4, 3e-4, 5e-4, 1e-3, 3e-3, 5e-3, 1e-2, 3e-2, 5e-2],
     "batch_size": [8, 16, 32, 64, 128, 256],
-    # Regularisasi
-    "l2": [0.0, 1e-7, 1e-6, 1e-5, 1e-4, 5e-4, 1e-3, 1e-2],
     # Early stopping: toleransi jumlah epoch tanpa perbaikan (patience)
     "patience": [5, 10, 15, 20, 30, 50],
-    # Gradient clipping
-    "clip_value": [0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
 }
 
 
@@ -50,7 +46,7 @@ class GridSearch:
 
     trainer_param_map:
         Pemetaan nama hyperparameter di search space -> nama argumen di
-        Trainer Anda. Contoh: {"l2": "l2_lambda", "patience": "tolerance"}.
+        Trainer Anda. Contoh: {"patience": "tolerance"}.
         Nama yang tidak ada di map dipakai apa adanya.
     """
 
@@ -395,18 +391,14 @@ if __name__ == "__main__":
     def trainer_factory(
         learning_rate,
         batch_size,
-        l2_lambda,
         patience,
-        clip_value,
     ):
         # Hyperparameter yang tidak dituning mengikuti konfigurasi train.py.
         cfg_train = {
             "learning_rate": learning_rate,
             "batch_size": batch_size,
-            "l2_lambda": l2_lambda,
             "patience": patience,
             "min_delta": cfg["min_delta"],
-            "clip_value": clip_value,
         }
 
         class CVTrainer:
@@ -440,7 +432,6 @@ if __name__ == "__main__":
         input_size=input_size,
         seed=args.seed,
         enforce_funnel=True,
-        trainer_param_map={"l2": "l2_lambda"},
         scoring="mae",
         verbose=True,
         k_folds=args.folds,
