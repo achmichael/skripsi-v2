@@ -228,6 +228,15 @@ WEEKLY_DEVICE_DURATION_HOURS = {
     "MesinCuci": 1.5,
 }
 
+NONE_CATEGORY_ALIASES = frozenset({
+    "tidak ada",
+    "tidak ada ac",
+    "tidak ada / tidak digunakan",
+    "tidak digunakan",
+    "tidak diisi",
+})
+
+
 configs: dict[str, Any] = {
     "models_config": {
         "900": {

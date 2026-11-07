@@ -18,8 +18,22 @@ from core.config.config import (
     OTHER_DEVICE_USAGE_DAILY_HOURS,
     WEEKLY_DEVICE_WATT,
     WEEKLY_DEVICE_DURATION_HOURS, PBJT_DEFAULT,
-    PBJT_CITY
+    PBJT_CITY, NONE_CATEGORY_ALIASES,
 )
+
+def align_none_category(value: Any, mapping: dict[str, Any]) -> Any:
+    if not isinstance(value, str) or value in mapping:
+        return value
+
+    normalized = " ".join(value.strip().lower().split())
+    if normalized not in NONE_CATEGORY_ALIASES:
+        return value
+
+    for key in mapping:
+        if " ".join(key.strip().lower().split()) in NONE_CATEGORY_ALIASES:
+            return key
+
+    return value
 
 def create_model(capacity, layers):
     np.random.seed(42)
@@ -66,7 +80,10 @@ def one_hot_encode(df, config):
 def ordinal_encode(df, config):
     for col, mapping in config["preprocessing"]["ordinal_encoding"].items():
         if col in df.columns:
-            df[col] = df[col].map(mapping)
+            aligned = df[col].map(
+                lambda value: align_none_category(value, mapping)
+            )
+            df[col] = aligned.map(mapping)
 
     return df
 
