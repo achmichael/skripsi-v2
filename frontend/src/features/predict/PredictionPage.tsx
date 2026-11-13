@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Capacity, PredictionInput, PredictionOutput, HistoryEntry } from '@/schemas/types'
 import { predictionSchema, type PredictionFormData } from '@/schemas/validation'
-import { buildSchema, getExampleData } from '@/lib/schema'
+import { buildSchema, getExampleData, OTHER_DEVICE_TYPES, OTHER_DEVICE_USAGE } from '@/lib/schema'
 import { api } from '@/lib/api'
 import { CapacitySelector } from '@/components/ui/CapacitySelector'
 import { StepIndicator } from '@/components/ui/StepIndicator'
@@ -50,6 +50,15 @@ export function PredictionPage() {
       rice_cooker_kategori: 'Sedang, sekitar 2-5 jam per hari',
       mesin_cuci_jumlah: 1,
       mesin_cuci_kategori: 'Sedang, 3-4 kali per minggu',
+      alat_lain_1_jumlah: 0,
+      alat_lain_1_jenis: 'Pompa air',
+      alat_lain_1_kategori: 'Sedang, 3-4 kali per minggu',
+      alat_lain_2_jumlah: 0,
+      alat_lain_2_jenis: 'Pompa air',
+      alat_lain_2_kategori: 'Sedang, 3-4 kali per minggu',
+      alat_lain_3_jumlah: 0,
+      alat_lain_3_jenis: 'Pompa air',
+      alat_lain_3_kategori: 'Sedang, 3-4 kali per minggu',
     },
     mode: 'onBlur',
   })
@@ -139,6 +148,9 @@ export function PredictionPage() {
         'kipas_jumlah', 'kipas_kategori',
         'rice_cooker_jumlah', 'rice_cooker_kategori',
         'mesin_cuci_jumlah', 'mesin_cuci_kategori',
+        'alat_lain_1_jumlah', 'alat_lain_1_jenis', 'alat_lain_1_kategori',
+        'alat_lain_2_jumlah', 'alat_lain_2_jenis', 'alat_lain_2_kategori',
+        'alat_lain_3_jumlah', 'alat_lain_3_jenis', 'alat_lain_3_kategori',
       ],
       [],
     ]
@@ -166,6 +178,12 @@ export function PredictionPage() {
       kipas_kategori: { field: 'kipas_jumlah', hideValue: 0 },
       rice_cooker_kategori: { field: 'rice_cooker_jumlah', hideValue: 0 },
       mesin_cuci_kategori: { field: 'mesin_cuci_jumlah', hideValue: 0 },
+      alat_lain_1_jenis: { field: 'alat_lain_1_jumlah', hideValue: 0 },
+      alat_lain_1_kategori: { field: 'alat_lain_1_jumlah', hideValue: 0 },
+      alat_lain_2_jenis: { field: 'alat_lain_2_jumlah', hideValue: 0 },
+      alat_lain_2_kategori: { field: 'alat_lain_2_jumlah', hideValue: 0 },
+      alat_lain_3_jenis: { field: 'alat_lain_3_jumlah', hideValue: 0 },
+      alat_lain_3_kategori: { field: 'alat_lain_3_jumlah', hideValue: 0 },
     }
     const dep = deps[fieldName]
     if (!dep) return true
@@ -358,6 +376,83 @@ export function PredictionPage() {
                 />
               )}
             </fieldset>
+
+            {/* Peralatan lain */}
+            <fieldset className="space-y-4">
+              <legend className="text-sm font-medium text-slate-600 dark:text-slate-400">Peralatan Lain</legend>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Peralatan lain yang sering dipakai, misalnya setrika, pompa air, dispenser, atau komputer. Kosongkan jika tidak ada.
+              </p>
+
+              <div className="space-y-3 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Peralatan Lain 1</p>
+                <NumberField label="Jumlah" unit="unit" min={0} max={3} error={errors.alat_lain_1_jumlah?.message} {...register('alat_lain_1_jumlah')} />
+                {showField('alat_lain_1_jenis') && (
+                  <>
+                    <SelectField
+                      label="Jenis Peralatan"
+                      options={[...OTHER_DEVICE_TYPES]}
+                      helpText="Contoh: setrika, pompa air, dispenser, atau komputer."
+                      error={errors.alat_lain_1_jenis?.message}
+                      {...register('alat_lain_1_jenis')}
+                    />
+                    <SelectField
+                      label="Seberapa Sering Digunakan"
+                      options={[...OTHER_DEVICE_USAGE]}
+                      helpText="Rata-rata berapa kali peralatan ini dipakai dalam seminggu."
+                      error={errors.alat_lain_1_kategori?.message}
+                      {...register('alat_lain_1_kategori')}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Peralatan Lain 2</p>
+                <NumberField label="Jumlah" unit="unit" min={0} max={3} error={errors.alat_lain_2_jumlah?.message} {...register('alat_lain_2_jumlah')} />
+                {showField('alat_lain_2_jenis') && (
+                  <>
+                    <SelectField
+                      label="Jenis Peralatan"
+                      options={[...OTHER_DEVICE_TYPES]}
+                      helpText="Contoh: setrika, pompa air, dispenser, atau komputer."
+                      error={errors.alat_lain_2_jenis?.message}
+                      {...register('alat_lain_2_jenis')}
+                    />
+                    <SelectField
+                      label="Seberapa Sering Digunakan"
+                      options={[...OTHER_DEVICE_USAGE]}
+                      helpText="Rata-rata berapa kali peralatan ini dipakai dalam seminggu."
+                      error={errors.alat_lain_2_kategori?.message}
+                      {...register('alat_lain_2_kategori')}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Peralatan Lain 3</p>
+                <NumberField label="Jumlah" unit="unit" min={0} max={3} error={errors.alat_lain_3_jumlah?.message} {...register('alat_lain_3_jumlah')} />
+                {showField('alat_lain_3_jenis') && (
+                  <>
+                    <SelectField
+                      label="Jenis Peralatan"
+                      options={[...OTHER_DEVICE_TYPES]}
+                      helpText="Contoh: setrika, pompa air, dispenser, atau komputer."
+                      error={errors.alat_lain_3_jenis?.message}
+                      {...register('alat_lain_3_jenis')}
+                    />
+                    <SelectField
+                      label="Seberapa Sering Digunakan"
+                      options={[...OTHER_DEVICE_USAGE]}
+                      helpText="Rata-rata berapa kali peralatan ini dipakai dalam seminggu."
+                      error={errors.alat_lain_3_kategori?.message}
+                      {...register('alat_lain_3_kategori')}
+                    />
+                  </>
+                )}
+              </div>
+            </fieldset>
           </div>
         </div>
 
@@ -380,6 +475,9 @@ export function PredictionPage() {
                 {Number(watchAll.kipas_jumlah) > 0 && <SummaryRow label="Kipas" value={`${watchAll.kipas_jumlah} unit`} />}
                 {Number(watchAll.rice_cooker_jumlah) > 0 && <SummaryRow label="Rice Cooker" value={`${watchAll.rice_cooker_jumlah} unit`} />}
                 {Number(watchAll.mesin_cuci_jumlah) > 0 && <SummaryRow label="Mesin Cuci" value={`${watchAll.mesin_cuci_jumlah} unit`} />}
+                {Number(watchAll.alat_lain_1_jumlah) > 0 && <SummaryRow label="Peralatan Lain 1" value={`${watchAll.alat_lain_1_jumlah} unit, ${watchAll.alat_lain_1_jenis}`} />}
+                {Number(watchAll.alat_lain_2_jumlah) > 0 && <SummaryRow label="Peralatan Lain 2" value={`${watchAll.alat_lain_2_jumlah} unit, ${watchAll.alat_lain_2_jenis}`} />}
+                {Number(watchAll.alat_lain_3_jumlah) > 0 && <SummaryRow label="Peralatan Lain 3" value={`${watchAll.alat_lain_3_jumlah} unit, ${watchAll.alat_lain_3_jenis}`} />}
               </div>
             </div>
           </div>

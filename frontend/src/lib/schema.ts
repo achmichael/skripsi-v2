@@ -79,6 +79,25 @@ const AC_PK = [
   "Tidak tahu",
 ];
 
+// Exact values from core/config/config.py — required by the frequency/ordinal encoders
+export const OTHER_DEVICE_TYPES = [
+  "Pompa air",
+  "Setrika",
+  "Dispenser",
+  "Komputer/Laptop",
+  "Oven/Microwave",
+  "Blender/Mixer",
+  "Charger HP/perangkat kecil",
+  "Lainnya",
+] as const;
+
+export const OTHER_DEVICE_USAGE = [
+  "Jarang, 1-2 kali per minggu",
+  "Sedang, 3-4 kali per minggu",
+  "Sering, hampir setiap hari",
+  "Sangat sering, setiap hari dan cukup lama",
+] as const;
+
 export function buildSchema(capacity: Capacity): FormSchema {
   const sections: SectionSchema[] = [
     {
@@ -304,6 +323,42 @@ export function buildSchema(capacity: Capacity): FormSchema {
           section: "perangkat",
           depends_on: { field: "mesin_cuci_jumlah", not_value: "0" },
         },
+        // Peralatan lain (3 slot, sama seperti kolom Alat_Lain_1..3 pada dataset)
+        ...[1, 2, 3].flatMap((n) => [
+          {
+            name: `alat_lain_${n}_jumlah`,
+            label: `Jumlah Peralatan Lain ${n}`,
+            type: "number" as const,
+            unit: "unit",
+            min: 0,
+            max: 3,
+            required: true,
+            default_value: 0,
+            section: "perangkat",
+          },
+          {
+            name: `alat_lain_${n}_jenis`,
+            label: "Jenis Peralatan",
+            type: "select" as const,
+            required: true,
+            options: [...OTHER_DEVICE_TYPES],
+            default_value: "Pompa air",
+            help_text: "Contoh: setrika, pompa air, dispenser, atau komputer.",
+            section: "perangkat",
+            depends_on: { field: `alat_lain_${n}_jumlah`, not_value: "0" },
+          },
+          {
+            name: `alat_lain_${n}_kategori`,
+            label: "Seberapa Sering Digunakan",
+            type: "select" as const,
+            required: true,
+            options: [...OTHER_DEVICE_USAGE],
+            default_value: "Sedang, 3-4 kali per minggu",
+            help_text: "Rata-rata berapa kali peralatan ini dipakai dalam seminggu.",
+            section: "perangkat",
+            depends_on: { field: `alat_lain_${n}_jumlah`, not_value: "0" },
+          },
+        ]),
       ],
     },
   ];
@@ -332,6 +387,15 @@ export function getExampleData(capacity: Capacity): Record<string, string | numb
     rice_cooker_kategori: "Sedang, sekitar 2-5 jam per hari",
     mesin_cuci_jumlah: 1,
     mesin_cuci_kategori: "Sedang, 3-4 kali per minggu",
+    alat_lain_1_jumlah: 1,
+    alat_lain_1_jenis: "Setrika",
+    alat_lain_1_kategori: "Sering, hampir setiap hari",
+    alat_lain_2_jumlah: 0,
+    alat_lain_2_jenis: "Pompa air",
+    alat_lain_2_kategori: "Sedang, 3-4 kali per minggu",
+    alat_lain_3_jumlah: 0,
+    alat_lain_3_jenis: "Pompa air",
+    alat_lain_3_kategori: "Sedang, 3-4 kali per minggu",
   };
   return base;
 }

@@ -34,6 +34,19 @@ class PredictionInput(BaseModel):
     mesin_cuci_jumlah: int = Field(0, ge=0, le=10)
     mesin_cuci_kategori: str = "Tidak ada / tidak digunakan"
 
+    # Peralatan lain (3 slot, sesuai kolom Alat_Lain_1..3)
+    alat_lain_1_jumlah: int = Field(0, ge=0, le=3)
+    alat_lain_1_jenis: str = "Tidak diisi"
+    alat_lain_1_kategori: str = "Tidak ada / tidak digunakan"
+
+    alat_lain_2_jumlah: int = Field(0, ge=0, le=3)
+    alat_lain_2_jenis: str = "Tidak diisi"
+    alat_lain_2_kategori: str = "Tidak ada / tidak digunakan"
+
+    alat_lain_3_jumlah: int = Field(0, ge=0, le=3)
+    alat_lain_3_jenis: str = "Tidak diisi"
+    alat_lain_3_kategori: str = "Tidak ada / tidak digunakan"
+
 class PredictionOutput(BaseModel):
     predicted_days: float = Field(..., description="Prediksi durasi token (hari)")
     capacity: str = Field(..., description="Daya yang dipilih")

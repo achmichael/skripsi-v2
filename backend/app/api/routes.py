@@ -158,6 +158,15 @@ def predict_token_lifespan(input_data: PredictionInput):
             "RiceCooker_Kategori": input_data.rice_cooker_kategori,
             "MesinCuci_Jumlah": input_data.mesin_cuci_jumlah,
             "MesinCuci_Kategori": input_data.mesin_cuci_kategori,
+            "Alat_Lain_1_Jenis": input_data.alat_lain_1_jenis,
+            "Alat_Lain_1_Jumlah": input_data.alat_lain_1_jumlah,
+            "Alat_Lain_1_Kategori": input_data.alat_lain_1_kategori,
+            "Alat_Lain_2_Jenis": input_data.alat_lain_2_jenis,
+            "Alat_Lain_2_Jumlah": input_data.alat_lain_2_jumlah,
+            "Alat_Lain_2_Kategori": input_data.alat_lain_2_kategori,
+            "Alat_Lain_3_Jenis": input_data.alat_lain_3_jenis,
+            "Alat_Lain_3_Jumlah": input_data.alat_lain_3_jumlah,
+            "Alat_Lain_3_Kategori": input_data.alat_lain_3_kategori,
             "Token_Habis_Dalam_Hari": 0
         }])
         

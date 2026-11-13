@@ -47,6 +47,15 @@ export interface PredictionInput {
   rice_cooker_kategori: string
   mesin_cuci_jumlah: number
   mesin_cuci_kategori: string
+  alat_lain_1_jumlah: number
+  alat_lain_1_jenis: string
+  alat_lain_1_kategori: string
+  alat_lain_2_jumlah: number
+  alat_lain_2_jenis: string
+  alat_lain_2_kategori: string
+  alat_lain_3_jumlah: number
+  alat_lain_3_jenis: string
+  alat_lain_3_kategori: string
 }
 
 export interface PredictionOutput {
