@@ -14,6 +14,8 @@ from transformation.target import (
 from transformation.inverse_transform import inverse_transform_target
 from utils.helper import selective_feature_scaling, create_model
 from .early_stopping import EarlyStopping
+from .gradient_clipping import clip_gradients
+from core.regularizers.l2 import L2Regularizer
 from core.optimizers.adam import Adam
 from experiments.k_fold_cv import KFoldCrossValidation
 from visualization.plots import save_loss_curve
@@ -63,6 +65,7 @@ class Trainer:
         verbose
     ):
         optimizer = Adam(learning_rate=cfg["learning_rate"])
+        regularizer = L2Regularizer(lambda_=cfg.get("l2_lambda", 0.0))
         trainer = Trainer(model, loss, optimizer)
         early_stopping = EarlyStopping(
             patience=cfg["patience"],
@@ -71,6 +74,8 @@ class Trainer:
         )
 
         batch_size = cfg["batch_size"]
+        clip_value = cfg["clip_value"]
+        l2_lambda = cfg.get("l2_lambda", 0.0)
 
         history = {
             "train_loss": [],
@@ -106,7 +111,12 @@ class Trainer:
                 grad_loss = loss.backward(y_pred, y_batch)
                 model.backward(grad_loss)
 
+                # Apply L2 regularization to gradients
                 trainable_params = model.get_trainable_layers()
+                regularizer.apply_to_gradients(trainable_params, y_batch)
+
+                # Gradient clipping
+                clip_gradients(model, clip_value)
 
                 # Update parameters
                 optimizer.update(trainable_params)
@@ -116,7 +126,15 @@ class Trainer:
             # Average training loss
             train_loss = np.mean(epoch_losses)
 
-            history["train_loss"].append(float(train_loss))
+            # Add L2 regularization penalty to loss for tracking
+            if l2_lambda > 0:
+                weights_list = [layer.weights for layer in model.layers if hasattr(layer, 'weights') and layer.weights is not None]
+                l2_penalty = regularizer.compute_loss(weights_list, y_batch)
+                train_loss_with_reg = train_loss + l2_penalty
+            else:
+                train_loss_with_reg = train_loss
+
+            history["train_loss"].append(float(train_loss_with_reg))
 
             # Validation loss
             val_loss, _ = trainer.evaluate(x_val_np, y_val_np)
@@ -128,7 +146,7 @@ class Trainer:
             # Print progress
             if verbose and (epoch % 10 == 0 or epoch == 1 or should_stop):
                 status = "Early Stop!" if should_stop else ""
-                print(f"{epoch:<8} {train_loss:<15.6f} {val_loss:<15.6f} {status:<20}")
+                print(f"{epoch:<8} {train_loss_with_reg:<15.6f} {val_loss:<15.6f} {status:<20}")
 
             if should_stop:
                 if verbose:
