@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { OTHER_DEVICE_TYPES, OTHER_DEVICE_USAGE } from '@/lib/schema'
 
 export const predictionSchema = z.object({
   kota: z.string().min(1, 'Pilih kota atau kabupaten'),
@@ -31,6 +32,15 @@ export const predictionSchema = z.object({
   rice_cooker_kategori: z.string().default('Tidak ada / tidak digunakan'),
   mesin_cuci_jumlah: z.coerce.number().int().min(0).max(3).default(0),
   mesin_cuci_kategori: z.string().default('Tidak ada / tidak digunakan'),
+  alat_lain_1_jumlah: z.coerce.number().int().min(0).max(3).default(0),
+  alat_lain_1_jenis: z.enum(OTHER_DEVICE_TYPES).default('Pompa air'),
+  alat_lain_1_kategori: z.enum(OTHER_DEVICE_USAGE).default('Sedang, 3-4 kali per minggu'),
+  alat_lain_2_jumlah: z.coerce.number().int().min(0).max(3).default(0),
+  alat_lain_2_jenis: z.enum(OTHER_DEVICE_TYPES).default('Pompa air'),
+  alat_lain_2_kategori: z.enum(OTHER_DEVICE_USAGE).default('Sedang, 3-4 kali per minggu'),
+  alat_lain_3_jumlah: z.coerce.number().int().min(0).max(3).default(0),
+  alat_lain_3_jenis: z.enum(OTHER_DEVICE_TYPES).default('Pompa air'),
+  alat_lain_3_kategori: z.enum(OTHER_DEVICE_USAGE).default('Sedang, 3-4 kali per minggu'),
 })
 
 export type PredictionFormData = z.infer<typeof predictionSchema>

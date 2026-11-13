@@ -30,7 +30,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 function mockPredict(input: PredictionInput): PredictionOutput {
   const nominalFactor = input.nominal_token / 100000;
   const baseDays = input.capacity === "900" ? 12 : input.capacity === "1300" ? 10 : 8;
-  const predicted = Math.round((baseDays * nominalFactor + Math.random() * 3) * 100) / 100;
+  const otherDevices =
+    input.alat_lain_1_jumlah + input.alat_lain_2_jumlah + input.alat_lain_3_jumlah;
+  const predicted =
+    Math.round((baseDays * nominalFactor - otherDevices * 0.3 + Math.random() * 3) * 100) / 100;
   return {
     predicted_days: Math.max(1, predicted),
     capacity: input.capacity,
@@ -79,6 +82,27 @@ export const api = {
         rice_cooker_kategori: input.rice_cooker_kategori,
         mesin_cuci_jumlah: input.mesin_cuci_jumlah,
         mesin_cuci_kategori: input.mesin_cuci_kategori,
+        alat_lain_1_jumlah: input.alat_lain_1_jumlah,
+        alat_lain_1_jenis:
+          input.alat_lain_1_jumlah > 0 ? input.alat_lain_1_jenis : "Tidak diisi",
+        alat_lain_1_kategori:
+          input.alat_lain_1_jumlah > 0
+            ? input.alat_lain_1_kategori
+            : "Tidak ada / tidak digunakan",
+        alat_lain_2_jumlah: input.alat_lain_2_jumlah,
+        alat_lain_2_jenis:
+          input.alat_lain_2_jumlah > 0 ? input.alat_lain_2_jenis : "Tidak diisi",
+        alat_lain_2_kategori:
+          input.alat_lain_2_jumlah > 0
+            ? input.alat_lain_2_kategori
+            : "Tidak ada / tidak digunakan",
+        alat_lain_3_jumlah: input.alat_lain_3_jumlah,
+        alat_lain_3_jenis:
+          input.alat_lain_3_jumlah > 0 ? input.alat_lain_3_jenis : "Tidak diisi",
+        alat_lain_3_kategori:
+          input.alat_lain_3_jumlah > 0
+            ? input.alat_lain_3_kategori
+            : "Tidak ada / tidak digunakan",
       }),
     });
   },
