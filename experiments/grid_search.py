@@ -27,7 +27,7 @@ SEARCH_SPACE = {
     # Regularisasi
     "l2": [0.0, 1e-7, 1e-6, 1e-5, 1e-4, 5e-4, 1e-3, 1e-2],
     # Early stopping: toleransi jumlah epoch tanpa perbaikan (patience)
-    "patience": [5, 10, 15, 20, 30, 50],
+    "patience": [5, 10, 15, 20, 30, 50, 60],
     # Gradient clipping
     "clip_value": [0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
 }
