@@ -49,3 +49,5 @@ data/dataset.csv
 data/prabayar_Tidak_tahu.csv
 !requirements.txt
 results/metrics/**.json
+
+*.png
