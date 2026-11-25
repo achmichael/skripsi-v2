@@ -51,6 +51,46 @@ def train_model(capacity, use_asymmetric=True, verbose=True):
     return result
 
 
+def log_preprocessed_samples(result, capacity, n_samples=3, dataset_key="x_train"):
+    """Menampilkan nilai seluruh fitur hasil preprocessing untuk n_samples data."""
+    data = result.get("data", {})
+    if dataset_key not in data:
+        print(f"[WARNING] Dataset '{dataset_key}' tidak ditemukan pada result['data'].")
+        return
+
+    X = np.asarray(data[dataset_key])
+    n_samples = min(n_samples, len(X))
+    samples = X[:n_samples]
+
+    feature_names = result.get("metadata", {}).get(
+        "feature_columns",
+        configs["models_config"][capacity]["features"]
+    )
+
+    total_width = 55 + (15 * n_samples)
+    print(f"\n{'=' * total_width}")
+    print(
+        f"LOG FITUR HASIL PREPROCESSING - {capacity} VA "
+        f"(Split: {dataset_key} | Total Fitur: {len(feature_names)} | {n_samples} Sampel)"
+    )
+    print(f"{'=' * total_width}")
+
+    header = f"{'No':<4} {'Nama Fitur':<50}"
+    for i in range(n_samples):
+        header += f" {f'Sampel {i + 1}':>14}"
+    print(header)
+    print("-" * total_width)
+
+    for feat_idx, feat_name in enumerate(feature_names):
+        row = f"{feat_idx + 1:<4} {feat_name:<50}"
+        for sample_idx in range(n_samples):
+            val = samples[sample_idx, feat_idx]
+            row += f" {val:>14.6f}"
+        print(row)
+
+    print(f"{'=' * total_width}\n")
+
+
 def evaluate_model(result, capacity, verbose=True):
     cfg = configs["models_config"][capacity]
 
@@ -225,6 +265,14 @@ def main():
                 capacity=capacity,
                 use_asymmetric=use_asymmetric,
                 verbose=args.verbose
+            )
+
+            # Log 3 sampel seluruh fitur setelah preprocessing
+            log_preprocessed_samples(
+                result=train_result,
+                capacity=capacity,
+                n_samples=3,
+                dataset_key="x_train"
             )
 
             # Evaluation
