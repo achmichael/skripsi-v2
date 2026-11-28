@@ -243,7 +243,7 @@ configs: dict[str, Any] = {
             "dataset_path": "dataset/prabayar_900.csv",
             "model_path": "results/prabayar_900/models/model_prabayar_900.json",
             "metrics_dir": "results/prabayar_900/metrics",
-            "hidden_layers": [128, 48],
+            "hidden_layers": [32, 16],
             "learning_rate": 0.005,
             "patience": 50,
             "l2_lambda": 0.0005,

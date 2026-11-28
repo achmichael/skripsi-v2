@@ -6,12 +6,6 @@ from core.config.config import configs
 from preprocessing.preprocess import preprocess
 
 from feature_extraction.feature_extraction import extractor
-from transformation.target import (
-    fit_minmax_scaler,
-    transform_minmax
-)
-
-from transformation.inverse_transform import inverse_transform_target
 from utils.helper import selective_feature_scaling, create_model
 from .early_stopping import EarlyStopping
 from .gradient_clipping import clip_gradients
@@ -233,15 +227,11 @@ class Trainer:
                 encoding_cols=no_scaling_cols
             )
 
-            # 5. Target Scaling
-            y_scaler = fit_minmax_scaler(y_train)
-            y_train_scaled = transform_minmax(y_train, y_scaler)
-            y_val_scaled = transform_minmax(y_val, y_scaler)
-
+            # 5. Target: gunakan nilai asli tanpa normalisasi
             x_train_np = np.array(x_train_scaled, dtype=np.float32)
-            y_train_np = np.array(y_train_scaled, dtype=np.float32).reshape(-1, 1)
+            y_train_np = np.array(y_train, dtype=np.float32).reshape(-1, 1)
             x_val_np = np.array(x_val_scaled, dtype=np.float32)
-            y_val_np = np.array(y_val_scaled, dtype=np.float32).reshape(-1, 1)
+            y_val_np = np.array(y_val, dtype=np.float32).reshape(-1, 1)
 
             # 6. Training fold (model baru agar bobot antarfold tidak terbawa)
             fold_model = create_model(capacity, model.layer_sizes)
@@ -259,17 +249,9 @@ class Trainer:
                 verbose=verbose
             )
 
-            # Evaluasi fold pada skala asli
-            y_pred_original = inverse_transform_target(
-                fold_model.forward(x_val_np).flatten().tolist(),
-                y_scaler,
-                use_log
-            )
-            y_true_original = inverse_transform_target(
-                y_val_np.flatten().tolist(),
-                y_scaler,
-                use_log
-            )
+            # Evaluasi fold pada skala asli (sudah asli, tidak perlu inverse)
+            y_pred_original = fold_model.forward(x_val_np).flatten().tolist()
+            y_true_original = y_val_np.flatten().tolist()
             metrics = KFoldCrossValidation.calculate_metrics(
                 y_true_original,
                 y_pred_original
@@ -310,7 +292,6 @@ class Trainer:
                     **fold_result,
                     "model": fold_model,
                     "x_scaler": x_scaler,
-                    "y_scaler": y_scaler,
                     "data": {
                         "x_train": x_train_np,
                         "y_train": y_train_np,
@@ -327,7 +308,6 @@ class Trainer:
         model = best_fold["model"]
         history = best_fold["history"]
         x_scaler = best_fold["x_scaler"]
-        y_scaler = best_fold["y_scaler"]
 
         if verbose:
             print(f"\nBest fold: {best_fold['fold']} "
@@ -362,7 +342,6 @@ class Trainer:
         scalers_path = os.path.join(cfg['metrics_dir'], 'scalers.json')
         scalers_data = {
             'x_scaler': x_scaler,
-            'y_scaler': y_scaler,
             'use_log_transform': use_log
         }
         with open(scalers_path, 'w') as f:
@@ -377,7 +356,6 @@ class Trainer:
             'history': history,
             'scalers': {
                 'x_scaler': x_scaler,
-                'y_scaler': y_scaler,
                 'use_log': use_log
             },
             'data': best_fold["data"],

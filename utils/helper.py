@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Optional
-from transformation.feature import fit_standard_scaler, transform_standard
+from transformation.feature import fit_minmax_scaler, transform_minmax
 from pandas.io.pytables import dropna_doc
 from locale import normalize
 import pandas as pd
@@ -183,9 +183,9 @@ def selective_feature_scaling(
             for row in x_train
         ]
 
-        scaler = fit_standard_scaler(train_numeric)
+        scaler = fit_minmax_scaler(train_numeric)
 
-        train_transformed = transform_standard(train_numeric, scaler)
+        train_transformed = transform_minmax(train_numeric, scaler)
 
         val_numeric = [
             [row[i] for i in scaling_indices]
@@ -197,8 +197,8 @@ def selective_feature_scaling(
             for row in x_test
         ]
 
-        val_transformed = transform_standard(val_numeric, scaler)
-        test_transformed = transform_standard(test_numeric, scaler)
+        val_transformed = transform_minmax(val_numeric, scaler)
+        test_transformed = transform_minmax(test_numeric, scaler)
 
         # place the scaled results back into their original feature positions
         for dataset, transformed in [
@@ -210,7 +210,7 @@ def selective_feature_scaling(
                 for col_idx, feature_idx in enumerate(scaling_indices):
                     dataset[row_idx][feature_idx] = row[col_idx]
     else:
-        scaler = {"mean": [], "std": []}
+        scaler = {"min": [], "max": []}
 
     scaler_data = {
         "scaler": scaler,
@@ -228,7 +228,7 @@ def transform_selective(x_data, scaler_data):
         return scaled
 
     numeric = [[row[i] for i in scaling_indices] for row in x_data]
-    transformed = transform_standard(numeric, scaler_data["scaler"])
+    transformed = transform_minmax(numeric, scaler_data["scaler"])
 
     for row_idx, row in enumerate(transformed):
         for col_idx, feature_idx in enumerate(scaling_indices):

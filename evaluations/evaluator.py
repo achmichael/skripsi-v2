@@ -3,7 +3,6 @@ import json
 import numpy as np
 
 from evaluations.metrics import rmse, mae, mape, r2
-from transformation.inverse_transform import inverse_transform_target
 from visualization.plots import (
     save_loss_curve,
     save_prediction_scatter,
@@ -19,37 +18,33 @@ class Evaluator:
         
         Args:
             model: Trained model
-            scalers: Dict berisi x_scaler, y_scaler, dan use_log
+            scalers: Dict berisi x_scaler dan use_log
             metadata: Dict berisi informasi capacity, feature_columns, dll
         """
         self.model = model
         self.x_scaler = scalers['x_scaler']
-        self.y_scaler = scalers['y_scaler']
         self.use_log = scalers.get('use_log_transform', metadata.get('use_log_transform', False))
         self.metadata = metadata
         self.capacity = metadata['capacity']
         
     def predict(self, x_scaled):
         """Prediksi dari data yang sudah di-scale."""
-        y_pred_scaled = self.model.forward(x_scaled)
-        return y_pred_scaled
+        y_pred = self.model.forward(x_scaled)
+        return y_pred
     
-    def evaluate_set(self, x_scaled, y_scaled, set_name="test"):
+    def evaluate_set(self, x_scaled, y_original, set_name="test"):
         """
         Evaluasi pada satu set data (train/val/test).
         
         Returns:
             dict: metrics dan predictions
         """
-        # Prediksi (scaled)
-        y_pred_scaled = self.predict(x_scaled)
+        # Prediksi (sudah dalam skala asli karena target tidak dinormalisasi)
+        y_pred = self.predict(x_scaled)
         
-        # Inverse transform ke skala asli
-        y_pred_scaled_list = y_pred_scaled.flatten().tolist()
-        y_scaled_list = y_scaled.flatten().tolist()
-        
-        y_pred_original = inverse_transform_target(y_pred_scaled_list, self.y_scaler, self.use_log)
-        y_true_original = inverse_transform_target(y_scaled_list, self.y_scaler, self.use_log)
+        # Data sudah dalam skala asli
+        y_pred_original = y_pred.flatten().tolist()
+        y_true_original = y_original.flatten().tolist()
         
         # Hitung metrics
         y_true_np = np.array(y_true_original)
