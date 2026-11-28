@@ -130,9 +130,8 @@ ALAT_LAIN_3 = [
 OTHER_DEVICES = ALAT_LAIN_1 + ALAT_LAIN_2 + ALAT_LAIN_3
 
 FEATURES = (
-    PROFILE + TOKEN_BEHAVIOR + KULKAS + TV + AC + KIPAS + RICE_COOKER + MESIN_CUCI + FEATURE_EXTRACTION + OTHER_DEVICES
+    KULKAS + TV + AC + KIPAS + RICE_COOKER + MESIN_CUCI + OTHER_DEVICES
 )
-
 
 COMMON = {
     "layer_sizes": None,
@@ -215,13 +214,13 @@ OTHER_DEVICE_SESSION_HOURS = {
 }
 
 DAILY_DEVICE_WATT = {
-    "TV": 80,
-    "Kipas": 45,
-    "RiceCooker": 300,
+    "TV": 60,
+    "Kipas": 48,
+    "RiceCooker": 400,
 }
 
 WEEKLY_DEVICE_WATT = {
-    "MesinCuci": 350,
+    "MesinCuci": 170,
 }
 
 WEEKLY_DEVICE_DURATION_HOURS = {
@@ -249,8 +248,6 @@ configs: dict[str, Any] = {
             "patience": 50,
             "l2_lambda": 0.0005,
             "use_log_transform": False,
-            "asymmetric_alpha": 0.6,
-            "asymmetric_beta": 0.4,
             "batch_size": 8,
             "clip_value": 10.0,
             "features": list(FEATURES),
@@ -264,9 +261,7 @@ configs: dict[str, Any] = {
             "learning_rate": 0.05,
             "patience": 50,
             "l2_lambda": 0.001,
-            "use_log_transform": True,
-            "asymmetric_alpha": 0.6,
-            "asymmetric_beta": 0.4,
+            "use_log_transform": False,
             "batch_size": 32,
             "clip_value": 10.0,
             "features": list(FEATURES),
@@ -281,8 +276,6 @@ configs: dict[str, Any] = {
             "patience": 50,
             "l2_lambda": 0.05,
             "use_log_transform": False,
-            "asymmetric_alpha": 0.6,
-            "asymmetric_beta": 0.4,
             "batch_size": 16,
             "clip_value": 2.0,
             "features": list(FEATURES),
@@ -369,8 +362,8 @@ configs: dict[str, Any] = {
                 "1/2 PK": 380,
                 "3/4 PK": 615,
                 "1 PK": 900,
-                "1.5 PK": 1.190,
-                "2 PK atau lebih": 1.520,
+                "1.5 PK": 1190,
+                "2 PK atau lebih": 1520,
             },
         },
         "no_scaling_cols": [

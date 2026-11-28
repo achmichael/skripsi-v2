@@ -28,15 +28,9 @@ def train_model(capacity, use_asymmetric=True, verbose=True):
 
     model = create_model(capacity, layer_sizes)
 
-    # Setup loss function
-    if use_asymmetric:
-        loss = AsymmetricMSE(beta=cfg["asymmetric_beta"], alpha=cfg["asymmetric_alpha"])
-        if verbose:
-            print(f"Using Asymmetric MSE Loss (alpha={cfg['asymmetric_alpha']})")
-    else:
-        loss = MSE()
-        if verbose:
-            print("Using Standard MSE Loss")
+    loss = MSE()
+    if verbose:
+        print("Using Standard MSE Loss")
 
     # Train model with 5-fold cross-validation
     result = Trainer.fit(
@@ -218,7 +212,7 @@ def main():
     parser.add_argument(
         "--loss",
         choices=["mse", "asymmetric"],
-        default="asymmetric",
+        default="mse",
         help="Jenis loss function (default: asymmetric)"
     )
     parser.add_argument(

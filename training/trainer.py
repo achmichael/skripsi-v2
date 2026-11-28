@@ -185,7 +185,6 @@ class Trainer:
             print(f"Hidden Layers: {cfg['hidden_layers']}")
             print(f"Learning Rate: {cfg['learning_rate']}")
             print(f"Batch Size: {cfg['batch_size']}")
-            print(f"Asymmetric Alpha: {cfg['asymmetric_alpha']}")
             print(f"Validation: {k_folds}-fold cross-validation")
 
         if verbose:
