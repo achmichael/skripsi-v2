@@ -46,16 +46,11 @@ def extractor(df: pd.DataFrame, capacity: str):
         pbjt = PBJT_DEFAULT
 
     if "Nominal_Token_Terakhir_Rp" in df.columns and "Total_Energi_Semua_kWhPerHari" in df.columns:
-        print('masuk kondisi ini')
         # Sumber rumus: https://www.fastpay.co.id/blog/harga-token-listrik-terbaru.html
         df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - pbjt) / df["Tarif_PLN_Eksak_Rp"])
+        df["Estimasi_Fisika_Durasi_Hari"] = df["Estimasi_kWh_Didapat"] / df["Total_Energi_Semua_kWhPerHari"]
     else:
         df["Estimasi_Fisika_Durasi_Hari"] = 0.0
-    if "Frekuensi_Isi_Token_Per_Bulan" in df.columns:
-        freq = df["Frekuensi_Isi_Token_Per_Bulan"].replace(0, np.nan)
-        df["Durasi_Dari_Frekuensi"] = (30.0 / freq).clip(1, 60)
-        df["Durasi_Dari_Frekuensi"] = df["Durasi_Dari_Frekuensi"].fillna(30.0)
-
 
     available_columns = list(df.columns)
 

@@ -153,12 +153,12 @@ DAILY_USAGE_HOURS = {
 
 AC_WATT_BY_PK = {
     "Tidak ada AC": 0,
-    "1/2 PK": 400,
-    "3/4 PK": 600,
-    "1 PK": 800,
-    "1.5 PK": 1100,
-    "2 PK atau lebih": 1500,
-    "Tidak tahu": 700,
+    "1/2 PK": 380,
+    "3/4 PK": 615,
+    "1 PK": 900,
+    "1.5 PK": 1190,
+    "2 PK atau lebih": 1520,
+    "Tidak tahu": 0,
 }
 
 KULKAS_WATT_BY_SIZE = {
