@@ -76,23 +76,23 @@ KULKAS = [
     "Kulkas_Jumlah", "Kulkas_Kategori", "Kulkas_Energi_kWhPerHari",
 ]
 
-TV = [
+TV = [ # Konstan 60 watt (Samsung)
     "TV_Jumlah", "TV_Kategori", "TV_Energi_kWhPerHari",
 ]
 
-AC = [
+AC = [ # Daikin Indonesia
     "AC_Jumlah", "AC_PK_Kategori", "AC_Kategori", "AC_Energi_kWhPerHari",
 ]
 
-KIPAS = [
+KIPAS = [ # Panasonic (48W)
     "Kipas_Jumlah", "Kipas_Kategori", "Kipas_Energi_kWhPerHari",
 ]
 
-RICE_COOKER = [
+RICE_COOKER = [ # Panasonic (400 W)
     "RiceCooker_Jumlah", "RiceCooker_Kategori", "RiceCooker_Energi_kWhPerHari",
 ]
 
-MESIN_CUCI = [
+MESIN_CUCI = [ # SHARP ES-M8500XT-SA (170 W)
     "MesinCuci_Jumlah", "MesinCuci_Kategori", "MesinCuci_Energi_kWhPerHari",
 ]
 
@@ -136,7 +136,7 @@ FEATURES = (
 
 COMMON = {
     "layer_sizes": None,
-    "min_delta": 1e-5,
+    "min_delta": 1e-5, # 0.00001
     "lr_decay": 0.001,
     "clip_value": 5.0,
     "batch_size": 16,
@@ -299,9 +299,9 @@ configs: dict[str, Any] = {
             "Kulkas_Kategori": {
                 "Tidak ada": 0,
                 "Tidak tahu": 0,
-                "Kecil / 1 pintu": 1,
-                "Sedang / 2 pintu": 2,
-                "Besar / side by side": 3,
+                "Kecil / 1 pintu": 60, # 60 watt
+                "Sedang / 2 pintu": 85, # 80 watt
+                "Besar / side by side": 135,
             },
             "TV_Kategori": {
                 "Tidak ada / tidak digunakan": 0,
@@ -366,11 +366,11 @@ configs: dict[str, Any] = {
             "AC_PK_Kategori": {
                 "Tidak ada AC": 0,
                 "Tidak tahu": 0,
-                "1/2 PK": 1,
-                "3/4 PK": 2,
-                "1 PK": 3,
-                "1.5 PK": 4,
-                "2 PK atau lebih": 5,
+                "1/2 PK": 380,
+                "3/4 PK": 615,
+                "1 PK": 900,
+                "1.5 PK": 1.190,
+                "2 PK atau lebih": 1.520,
             },
         },
         "no_scaling_cols": [
