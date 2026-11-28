@@ -46,9 +46,9 @@ def extractor(df: pd.DataFrame, capacity: str):
         pbjt = PBJT_DEFAULT
 
     if "Nominal_Token_Terakhir_Rp" in df.columns and "Total_Energi_Semua_kWhPerHari" in df.columns:
-        # 1 = Tarif dasar = 100%
-        df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - 2500) / (1 + pbjt)) / df["Tarif_PLN_Eksak_Rp"]
-        df["Estimasi_Fisika_Durasi_Hari"] = df["Estimasi_kWh_Didapat"] / (df["Total_Energi_Semua_kWhPerHari"] + 0.1)
+        print('masuk kondisi ini')
+        # Sumber rumus: https://www.fastpay.co.id/blog/harga-token-listrik-terbaru.html
+        df["Estimasi_kWh_Didapat"] = ((df["Nominal_Token_Terakhir_Rp"] - pbjt) / df["Tarif_PLN_Eksak_Rp"])
     else:
         df["Estimasi_Fisika_Durasi_Hari"] = 0.0
     if "Frekuensi_Isi_Token_Per_Bulan" in df.columns:
@@ -56,10 +56,6 @@ def extractor(df: pd.DataFrame, capacity: str):
         df["Durasi_Dari_Frekuensi"] = (30.0 / freq).clip(1, 60)
         df["Durasi_Dari_Frekuensi"] = df["Durasi_Dari_Frekuensi"].fillna(30.0)
 
-    if ("Estimasi_Fisika_Durasi_Hari" in df.columns and
-        "Durasi_Dari_Frekuensi" in df.columns):
-        df["Rasio_Fisika_vs_Frekuensi"] = df["Estimasi_Fisika_Durasi_Hari"] / (df["Durasi_Dari_Frekuensi"] + 1e-8)
-        df["Rasio_Fisika_vs_Frekuensi"] = df["Rasio_Fisika_vs_Frekuensi"].clip(0.1, 10.0)
 
     available_columns = list(df.columns)
 
